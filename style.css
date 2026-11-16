@@ -1275,6 +1275,54 @@ body {
   }
 }
 
+/* 7. 单色律动 (Rhythm): 跟随音乐强弱节拍跳跃脉冲，高保真单色动感光效 */
+.fx-rhythm .halo-core-ring {
+  background-color: var(--active-halo-color, #00e600);
+  box-shadow: none !important;
+  animation: animHaloRhythm 1.08s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.fx-rhythm .halo-ambient-glow {
+  display: none !important;
+}
+
+@keyframes animHaloRhythm {
+  0%, 100% {
+    opacity: 0.2;
+    filter: brightness(0.8);
+    transform: scale(0.97);
+  }
+  14% {
+    opacity: 1;
+    filter: brightness(1.35);
+    transform: scale(1.02);
+  }
+  28% {
+    opacity: 0.45;
+    filter: brightness(0.95);
+    transform: scale(0.985);
+  }
+  42% {
+    opacity: 0.88;
+    filter: brightness(1.2);
+    transform: scale(1.01);
+  }
+  58% {
+    opacity: 0.3;
+    filter: brightness(0.85);
+    transform: scale(0.975);
+  }
+  74% {
+    opacity: 0.95;
+    filter: brightness(1.28);
+    transform: scale(1.015);
+  }
+  88% {
+    opacity: 0.25;
+    filter: brightness(0.82);
+    transform: scale(0.97);
+  }
+}
+
 
 /* 四色律动专属调色盘 (中空环 + 选中同色中心点效果，对齐前面的环样式) */
 .four-color-presets-row {

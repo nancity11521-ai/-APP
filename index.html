@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>通知氛围灯效果设置 - 多语言交互原型 (DYNAMIC SOUND)</title>
-  <link rel="stylesheet" href="./style.css?v=20261116_v11">
+  <link rel="stylesheet" href="./style.css?v=20261116_v12">
 </head>
 <body>
   <!-- 桌面端悬浮控制工具栏 (语言切换 + 项目筛选与示意图更换) -->
@@ -860,6 +860,30 @@
                     </svg>
                   </span>
                 </button>
+                <!-- 律动 (单色跳动脉冲) -->
+                <button type="button" class="capsule-btn " data-effect="rhythm" onclick="selectSceneEffect('music', 'rhythm')">
+                  <span class="capsule-icon">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <defs>
+                        <linearGradient id="gradRhythmSingle_music" x1="0%" y1="100%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#10b981"/>
+                          <stop offset="50%" stop-color="#06b6d4"/>
+                          <stop offset="100%" stop-color="#3b82f6"/>
+                        </linearGradient>
+                      </defs>
+                      <rect x="3.5" y="9" width="2.8" height="6" rx="1.4" fill="url(#gradRhythmSingle_music)" opacity="0.75"/>
+                      <rect x="8.2" y="5" width="2.8" height="14" rx="1.4" fill="url(#gradRhythmSingle_music)"/>
+                      <rect x="13" y="2.5" width="2.8" height="19" rx="1.4" fill="url(#gradRhythmSingle_music)"/>
+                      <rect x="17.7" y="7" width="2.8" height="10" rx="1.4" fill="url(#gradRhythmSingle_music)" opacity="0.85"/>
+                    </svg>
+                  </span>
+                  <span class="capsule-text" data-i18n="effect_rhythm">律动</span>
+                  <span class="check-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -1131,6 +1155,6 @@
     </div>
   </main>
 
-  <script src="./app.js?v=20261116_v11"></script>
+  <script src="./app.js?v=20261116_v12"></script>
 </body>
 </html>

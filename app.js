@@ -33,6 +33,7 @@ const I18N_LOCALES = {
     effect_waterflow: '流水',
     effect_color_rhythm: '彩色律动',
     effect_four_color: '四色律动',
+    effect_rhythm: '律动',
     color_grass_green: '草绿',
     color_peach_orange: '浅橙',
     color_fog_blue: '灰蓝',
@@ -103,6 +104,7 @@ const I18N_LOCALES = {
     effect_waterflow: 'Water Flow',
     effect_color_rhythm: 'Color Rhythm',
     effect_four_color: '4-Color Rhythm',
+    effect_rhythm: 'Rhythm',
     color_grass_green: 'Grass Green',
     color_peach_orange: 'Peach Orange',
     color_fog_blue: 'Haze Blue',
@@ -173,6 +175,7 @@ const I18N_LOCALES = {
     effect_waterflow: 'Fließend',
     effect_color_rhythm: 'Farbrhythmus',
     effect_four_color: '4-Farben-Rhythmus',
+    effect_rhythm: 'Rhythmus',
     color_grass_green: 'Grasgrün',
     color_peach_orange: 'Pfirsich-Orange',
     color_fog_blue: 'Dunstblau',
@@ -240,6 +243,7 @@ const I18N_LOCALES = {
     effect_waterflow: 'Flujo continuo',
     effect_color_rhythm: 'Ritmo multicolor',
     effect_four_color: 'Ritmo 4 colores',
+    effect_rhythm: 'Ritmo',
     color_grass_green: 'Verde hierba',
     color_peach_orange: 'Naranja melocotón',
     color_fog_blue: 'Azul bruma',
@@ -307,6 +311,7 @@ const I18N_LOCALES = {
     effect_waterflow: 'Течение',
     effect_color_rhythm: 'Цветной ритм',
     effect_four_color: '4-цветный ритм',
+    effect_rhythm: 'Ритм',
     color_grass_green: 'Травяной зеленый',
     color_peach_orange: 'Персиковый',
     color_fog_blue: 'Туманно-синий',
@@ -374,6 +379,7 @@ const I18N_LOCALES = {
     effect_waterflow: 'Ruissellement',
     effect_color_rhythm: 'Rythme couleur',
     effect_four_color: 'Rythme 4 couleurs',
+    effect_rhythm: 'Rythme',
     color_grass_green: 'Vert herbe',
     color_peach_orange: 'Orange pêche',
     color_fog_blue: 'Bleu brume',
@@ -441,6 +447,7 @@ const I18N_LOCALES = {
     effect_waterflow: '流水',
     effect_color_rhythm: 'カラーリズム',
     effect_four_color: '4色リズム',
+    effect_rhythm: 'リズム',
     color_grass_green: 'グラスグリーン',
     color_peach_orange: 'ピーチオレンジ',
     color_fog_blue: 'フォグブルー',
@@ -816,7 +823,7 @@ function selectMusicFourColorPalette(index) {
  * 音乐场景：根据当前选中的灯效动态控制颜色选择模块显隐
  * - 彩色律动：不可以选择颜色（隐藏所有调色盘）
  * - 四色律动：展示四色律动专属配色盘（4组扇形色盘）
- * - 呼吸：展示与其他场景相同的标准颜色选择（6中空环预设 + 拾色大圆盘）
+ * - 呼吸 / 律动：展示与其他场景相同的标准单色颜色选择（6中空环预设 + 拾色大圆盘）
  */
 function updateMusicColorModules(effectName) {
   const fourColorMod = document.getElementById('colorModule_music_four_color');
@@ -830,7 +837,7 @@ function updateMusicColorModules(effectName) {
     if (singleColorMod) singleColorMod.style.display = 'none';
     const pIdx = state.scenes.music.fourColorPalette !== undefined ? state.scenes.music.fourColorPalette : 3;
     selectMusicFourColorPalette(pIdx);
-  } else if (effectName === 'breathing') {
+  } else if (effectName === 'breathing' || effectName === 'rhythm') {
     if (fourColorMod) fourColorMod.style.display = 'none';
     if (singleColorMod) singleColorMod.style.display = 'block';
     applyHaloColor(state.scenes.music.color || '#00e600');
@@ -842,7 +849,7 @@ const SCENE_ALL_CANDIDATE_EFFECTS = {
   call: ['breathing', 'pulsing'],
   notification: ['breathing', 'pulsing'],
   charging: ['waterflow', 'streamer', 'breathing', 'pulsing'],
-  music: ['color_rhythm', 'four_color', 'breathing'],
+  music: ['color_rhythm', 'four_color', 'breathing', 'rhythm'],
   power: ['breathing', 'pulsing']
 };
 
@@ -1059,6 +1066,7 @@ function applySceneEffectToMockup(sceneId, effectName) {
     'fx-waterflow',
     'fx-color_rhythm',
     'fx-four_color',
+    'fx-rhythm',
     'fx-blinking',
     'fx-off'
   );
@@ -2492,7 +2500,7 @@ function initProjectSystem() {
     if (savedEnabled) {
       state.projectEnabledEffects = JSON.parse(savedEnabled) || {};
     }
-    // 升级充电模式的候选灯效列表，确保新增的呼吸和脉动能够平滑默认支持
+    // 升级充电模式与音乐模式的候选灯效列表，确保新增的呼吸、脉动和律动能够平滑默认支持
     if (state.projectEnabledEffects) {
       Object.keys(state.projectEnabledEffects).forEach(pId => {
         const pMap = state.projectEnabledEffects[pId];
@@ -2502,6 +2510,11 @@ function initProjectSystem() {
               pMap.charging.push(eff);
             }
           });
+        }
+        if (pMap && pMap.music) {
+          if (!pMap.music.includes('rhythm')) {
+            pMap.music.push('rhythm');
+          }
         }
       });
     }

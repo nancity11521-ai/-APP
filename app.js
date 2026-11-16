@@ -67,6 +67,7 @@ const I18N_LOCALES = {
     light_pos_x: '水平位置 X:',
     light_pos_y: '垂直位置 Y:',
     light_size: '灯圈尺寸:',
+    light_ring_width: '灯的宽度:',
     schematic_scale: '示意图缩放:',
     auto_detect_btn: '智能识别',
     reset_light_btn: '恢复默认',
@@ -136,6 +137,7 @@ const I18N_LOCALES = {
     light_pos_x: 'Horizontal X:',
     light_pos_y: 'Vertical Y:',
     light_size: 'Ring Size:',
+    light_ring_width: 'Light Width:',
     schematic_scale: 'Scale:',
     auto_detect_btn: 'Auto Detect',
     reset_light_btn: 'Reset',
@@ -202,6 +204,7 @@ const I18N_LOCALES = {
     light_pos_x: 'Horizontale X:',
     light_pos_y: 'Vertikale Y:',
     light_size: 'Ringgröße:',
+    light_ring_width: 'Lichtbreite:',
     schematic_scale: 'Skalierung:',
     auto_detect_btn: 'Auto-Erkennung',
     reset_light_btn: 'Zurücksetzen',
@@ -268,6 +271,7 @@ const I18N_LOCALES = {
     light_pos_x: 'Posición X:',
     light_pos_y: 'Posición Y:',
     light_size: 'Tamaño del aro:',
+    light_ring_width: 'Ancho de la luz:',
     schematic_scale: 'Escala:',
     auto_detect_btn: 'Detección auto',
     reset_light_btn: 'Restablecer',
@@ -334,6 +338,7 @@ const I18N_LOCALES = {
     light_pos_x: 'Позиция X:',
     light_pos_y: 'Позиция Y:',
     light_size: 'Размер кольца:',
+    light_ring_width: 'Ширина кольца:',
     schematic_scale: 'Масштаб:',
     auto_detect_btn: 'Автоопределение',
     reset_light_btn: 'Сбросить',
@@ -400,6 +405,7 @@ const I18N_LOCALES = {
     light_pos_x: 'Position X :',
     light_pos_y: 'Position Y :',
     light_size: 'Taille anneau :',
+    light_ring_width: 'Largeur lumière :',
     schematic_scale: 'Échelle :',
     auto_detect_btn: 'Détection auto',
     reset_light_btn: 'Réinitialiser',
@@ -466,6 +472,7 @@ const I18N_LOCALES = {
     light_pos_x: '水平位置 X:',
     light_pos_y: '垂直位置 Y:',
     light_size: 'ライトサイズ:',
+    light_ring_width: 'ライトの幅:',
     schematic_scale: '縮尺比率:',
     auto_detect_btn: '自動検出',
     reset_light_btn: '初期化',
@@ -571,16 +578,14 @@ const DEFAULT_PROJECT_LIGHT_CONFIGS = {
     top: '45.23%',
     width: '20.63%',
     scale: 1.0,
-    maskInner: '64%',
-    maskOuter: '92%'
+    ringWidth: 28
   },
   '3137': {
     left: '47.87%',
     top: '43.45%',
     width: '6.71%',
     scale: 1.0,
-    maskInner: '74%',
-    maskOuter: '98%'
+    ringWidth: 24
   }
 };
 
@@ -1813,7 +1818,11 @@ function toggleAllApps(checked) {
  */
 function getProjectLightConfig(projectId) {
   if (state.projectLightConfigs && state.projectLightConfigs[projectId]) {
-    return { ...state.projectLightConfigs[projectId] };
+    const cfg = { ...state.projectLightConfigs[projectId] };
+    if (cfg.ringWidth === undefined) {
+      cfg.ringWidth = projectId === '3137' ? 24 : 28;
+    }
+    return cfg;
   }
   if (DEFAULT_PROJECT_LIGHT_CONFIGS[projectId]) {
     return { ...DEFAULT_PROJECT_LIGHT_CONFIGS[projectId] };
@@ -1822,7 +1831,8 @@ function getProjectLightConfig(projectId) {
     left: '50.0%',
     top: '50.0%',
     width: '20.0%',
-    scale: 1.0
+    scale: 1.0,
+    ringWidth: 25
   };
 }
 
@@ -1852,10 +1862,12 @@ function applyProjectLightConfig(projectId) {
   const scaleVal = config.scale !== undefined ? config.scale : 1.0;
   root.style.setProperty('--schematic-scale', scaleVal);
 
-  const maskInner = config.maskInner || '64%';
-  const maskOuter = config.maskOuter || '92%';
-  root.style.setProperty('--emitter-mask-inner', maskInner);
-  root.style.setProperty('--emitter-mask-outer', maskOuter);
+  const ringW = config.ringWidth !== undefined ? parseFloat(config.ringWidth) : 28;
+  const outerPct = 94;
+  const innerPct = Math.max(10, Math.min(90, outerPct - ringW));
+  root.style.setProperty('--emitter-mask-inner', `${innerPct}%`);
+  root.style.setProperty('--emitter-mask-outer', `${outerPct}%`);
+  root.style.setProperty('--emitter-ring-width', `${ringW}%`);
 
   const scenes = ['home', 'call', 'notification', 'charging', 'music', 'power'];
   scenes.forEach(s => {
@@ -1885,26 +1897,31 @@ function syncSlidersWithConfig(config) {
   const numY = parseFloat(config.top) || 50;
   const numSize = parseFloat(config.width) || 20;
   const numScale = config.scale !== undefined ? parseFloat(config.scale) : 1.0;
+  const numRingWidth = config.ringWidth !== undefined ? parseFloat(config.ringWidth) : 28;
 
   const sliderX = document.getElementById('sliderLightX');
   const sliderY = document.getElementById('sliderLightY');
   const sliderSize = document.getElementById('sliderLightSize');
   const sliderScale = document.getElementById('sliderLightScale');
+  const sliderRingWidth = document.getElementById('sliderLightRingWidth');
 
   const valX = document.getElementById('valLightX');
   const valY = document.getElementById('valLightY');
   const valSize = document.getElementById('valLightSize');
   const valScale = document.getElementById('valLightScale');
+  const valRingWidth = document.getElementById('valLightRingWidth');
 
   if (sliderX) sliderX.value = numX;
   if (sliderY) sliderY.value = numY;
   if (sliderSize) sliderSize.value = numSize;
   if (sliderScale) sliderScale.value = numScale;
+  if (sliderRingWidth) sliderRingWidth.value = numRingWidth;
 
   if (valX) valX.textContent = `${numX.toFixed(1)}%`;
   if (valY) valY.textContent = `${numY.toFixed(1)}%`;
   if (valSize) valSize.textContent = `${numSize.toFixed(1)}%`;
   if (valScale) valScale.textContent = `${Math.round(numScale * 100)}%`;
+  if (valRingWidth) valRingWidth.textContent = `${Math.round(numRingWidth)}%`;
 }
 
 /**
@@ -1941,17 +1958,20 @@ function handleLightParamChange() {
   const sliderY = document.getElementById('sliderLightY');
   const sliderSize = document.getElementById('sliderLightSize');
   const sliderScale = document.getElementById('sliderLightScale');
+  const sliderRingWidth = document.getElementById('sliderLightRingWidth');
 
   const numX = parseFloat(sliderX?.value || 50);
   const numY = parseFloat(sliderY?.value || 50);
   const numSize = parseFloat(sliderSize?.value || 20);
   const numScale = parseFloat(sliderScale?.value || 1.0);
+  const numRingWidth = parseFloat(sliderRingWidth?.value || 28);
 
   const config = {
     left: `${numX.toFixed(1)}%`,
     top: `${numY.toFixed(1)}%`,
     width: `${numSize.toFixed(1)}%`,
-    scale: numScale
+    scale: numScale,
+    ringWidth: numRingWidth
   };
 
   saveProjectLightConfig(state.currentProject, config);
@@ -1969,11 +1989,12 @@ function resetCurrentProjectLightConfig() {
       left: '50.0%',
       top: '50.0%',
       width: '20.0%',
-      scale: 1.0
+      scale: 1.0,
+      ringWidth: 25
     });
   }
   applyProjectLightConfig(state.currentProject);
-  showUploadToast((state.lang === 'zh-CN' ? '已恢复 ' : 'Reset config for ') + state.currentProject + (state.lang === 'zh-CN' ? ' 默认灯位' : ' default light position'));
+  showUploadToast((state.lang === 'zh-CN' ? '已恢复 ' : 'Reset config for ') + state.currentProject + (state.lang === 'zh-CN' ? ' 默认灯位与宽度' : ' default light position & width'));
 }
 
 /**
@@ -2054,6 +2075,21 @@ function autoDetectLightRingFromImage(imgElement) {
     const topPct = ((cy / h) * 100).toFixed(2) + '%';
     const widthPct = ((diameter / w) * 100).toFixed(2) + '%';
 
+    // 估算发光环宽度（环厚度）
+    let maxDist = 0, minDist = Infinity;
+    inliers.forEach(pt => {
+      const d = Math.hypot(pt.x - cx, pt.y - cy);
+      if (d > maxDist) maxDist = d;
+      if (d < minDist) minDist = d;
+    });
+    let detectedRingWidth = 25;
+    if (maxDist > 4 && minDist < maxDist) {
+      const calcW = Math.round((1 - minDist / maxDist) * 94);
+      if (calcW >= 6 && calcW <= 50) {
+        detectedRingWidth = calcW;
+      }
+    }
+
     // 自动将底图中被检测出的彩色标记光圈清洗为中性底色，彻底杜绝“底图印死的光圈 + CSS动态变色光圈”造成重叠双圈
     for (let i = 0; i < inliers.length; i++) {
       const pt = inliers[i];
@@ -2069,6 +2105,7 @@ function autoDetectLightRingFromImage(imgElement) {
       left: leftPct,
       top: topPct,
       width: widthPct,
+      ringWidth: detectedRingWidth,
       cleanedDataUrl: cleanedDataUrl
     };
   } catch (err) {
@@ -2141,6 +2178,9 @@ function autoDetectLightRegionForCurrent() {
       curConf.left = detected.left;
       curConf.top = detected.top;
       curConf.width = detected.width;
+      if (detected.ringWidth !== undefined) {
+        curConf.ringWidth = detected.ringWidth;
+      }
       saveProjectLightConfig(state.currentProject, curConf);
       applyProjectLightConfig(state.currentProject);
       showUploadToast((state.lang === 'zh-CN' ? '✨ 智能检测成功: ' : '✨ Auto-detected: ') + `${detected.left}, ${detected.top}`);

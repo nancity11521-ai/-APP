@@ -564,13 +564,17 @@ const DEFAULT_PROJECT_LIGHT_CONFIGS = {
     left: '67.19%',
     top: '45.23%',
     width: '20.63%',
-    scale: 1.0
+    scale: 1.0,
+    maskInner: '64%',
+    maskOuter: '92%'
   },
   '3137': {
-    left: '44.55%',
-    top: '38.14%',
-    width: '13.60%',
-    scale: 1.6
+    left: '47.87%',
+    top: '43.45%',
+    width: '6.71%',
+    scale: 1.0,
+    maskInner: '74%',
+    maskOuter: '98%'
   }
 };
 
@@ -1719,6 +1723,11 @@ function applyProjectLightConfig(projectId) {
   const scaleVal = config.scale !== undefined ? config.scale : 1.0;
   root.style.setProperty('--schematic-scale', scaleVal);
 
+  const maskInner = config.maskInner || '64%';
+  const maskOuter = config.maskOuter || '92%';
+  root.style.setProperty('--emitter-mask-inner', maskInner);
+  root.style.setProperty('--emitter-mask-outer', maskOuter);
+
   const scenes = ['home', 'call', 'notification', 'charging', 'music', 'power'];
   scenes.forEach(s => {
     const emitter = document.getElementById(`haloEmitter_${s}`);
@@ -2267,19 +2276,26 @@ function initProjectSystem() {
     if (savedCustom) {
       state.customDiagrams = JSON.parse(savedCustom) || {};
     }
+    // 3137 项目默认集成官方 2K 16:9 纯净超清矢量级底图，清理残留的老版本低清截屏缓存
     if (state.customDiagrams && state.customDiagrams['3137']) {
-      // 3137 已有官方纯净底图，若用户本地曾保存过老带色截图，清理并更新以消除双圈
-      cleanIndicatorRingsFromImage(state.customDiagrams['3137'], function(cleanUrl) {
-        state.customDiagrams['3137'] = cleanUrl;
-        try {
-          localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
-        } catch (e) {}
-        updateAllMockupImages();
-      });
+      delete state.customDiagrams['3137'];
+      try {
+        localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+      } catch (e) {}
     }
     const savedConfigs = localStorage.getItem('ambient_light_project_configs');
     if (savedConfigs) {
       state.projectLightConfigs = JSON.parse(savedConfigs) || {};
+    }
+    // 校验 3137 配置，若存在老版本缩放或错误尺寸，自动平滑升级为官方超清精准定位
+    if (state.projectLightConfigs && state.projectLightConfigs['3137']) {
+      const cfg = state.projectLightConfigs['3137'];
+      if (cfg.scale === 1.6 || cfg.width === '13.60%' || cfg.left === '44.55%') {
+        state.projectLightConfigs['3137'] = { ...DEFAULT_PROJECT_LIGHT_CONFIGS['3137'] };
+        try {
+          localStorage.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
+        } catch (e) {}
+      }
     }
     const savedCurrent = localStorage.getItem('ambient_light_current_project');
     if (savedCurrent && state.projects.includes(savedCurrent)) {

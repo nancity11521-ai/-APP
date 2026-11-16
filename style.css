@@ -925,6 +925,11 @@ body {
   display: block;
   object-fit: contain;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.05));
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* 覆盖在发光环模组上的动态光效层 (支持动态CSS变量控制灯位与尺寸) */
@@ -947,7 +952,7 @@ body {
   overflow: hidden;
 }
 
-/* 动态核心灯带：仅固定环形光槽自身单圈发光(64%~94%)，彻底杜绝外围漫射晕染与双圈重影 */
+/* 动态核心灯带：仅固定环形光槽自身单圈发光，彻底杜绝外围漫射晕染与双圈重影 */
 .halo-core-ring {
   width: 100%;
   height: 100%;
@@ -955,8 +960,8 @@ body {
   position: absolute;
   box-shadow: none !important;
   transition: opacity 0.3s ease, filter 0.3s ease;
-  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
-  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% var(--emitter-mask-inner, 64%), #fff calc(var(--emitter-mask-inner, 64%) + 2%) var(--emitter-mask-outer, 92%), transparent calc(var(--emitter-mask-outer, 92%) + 2%) 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% var(--emitter-mask-inner, 64%), #fff calc(var(--emitter-mask-inner, 64%) + 2%) var(--emitter-mask-outer, 92%), transparent calc(var(--emitter-mask-outer, 92%) + 2%) 100%);
 }
 
 /* 外围柔焦发光：完全禁用，防止在灯带周围形成大面积彩色晕染 */

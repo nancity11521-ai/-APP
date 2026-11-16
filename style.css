@@ -842,26 +842,35 @@ body {
 .device-card-container {
   background: var(--card-bg, #ffffff);
   border-radius: 18px;
-  padding: 16px 14px;
+  padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   flex-shrink: 0;
-  min-height: 245px;
   width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: unset;
+  height: auto;
   box-sizing: border-box;
+  position: relative;
+}
+
+.device-card-container:has(.calibrating-active) {
+  overflow: visible;
 }
 
 .device-mockup-new {
   position: relative;
   width: fit-content;
+  height: fit-content;
   max-width: 100%;
+  max-height: 100%;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
+  margin: auto;
   transform: scale(var(--schematic-scale, 1));
   transform-origin: center center;
   transition: transform 0.2s ease;
@@ -910,7 +919,7 @@ body {
 
 .device-clean-img {
   max-width: 100%;
-  max-height: 240px;
+  max-height: 100%;
   width: auto;
   height: auto;
   display: block;

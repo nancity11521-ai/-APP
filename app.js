@@ -56,6 +56,9 @@ const I18N_LOCALES = {
     time_start: '开始',
     time_end: '结束',
     project_label: '项目',
+    project_effects_btn: '模式灯效',
+    project_effects_modal_title: '项目各模式灯效确认',
+    project_effects_modal_subtip: '💡 在此为当前项目选择并确认各模式的专属灯效，各项目独立记忆与生效。',
     adjust_light_btn: '调整灯位',
     adjust_panel_title: '灯位与尺寸配置',
     light_pos_x: '水平位置 X:',
@@ -119,6 +122,9 @@ const I18N_LOCALES = {
     time_start: 'Start',
     time_end: 'End',
     project_label: 'Project',
+    project_effects_btn: 'Mode Effects',
+    project_effects_modal_title: 'Project Mode Effects',
+    project_effects_modal_subtip: '💡 Configure and confirm light effects for each mode. Saved independently per project.',
     adjust_light_btn: 'Adjust Light',
     adjust_panel_title: 'Light Ring Setup',
     light_pos_x: 'Horizontal X:',
@@ -182,6 +188,9 @@ const I18N_LOCALES = {
     time_start: 'Start',
     time_end: 'Ende',
     project_label: 'Projekt',
+    project_effects_btn: 'Modus-Effekte',
+    project_effects_modal_title: 'Projekt-Lichteffekte bestätigen',
+    project_effects_modal_subtip: '💡 Lichteffekte pro Projekt unabhängig auswählen und bestätigen.',
     adjust_light_btn: 'Licht anpassen',
     adjust_panel_title: 'Lichtring & Größe',
     light_pos_x: 'Horizontale X:',
@@ -245,6 +254,9 @@ const I18N_LOCALES = {
     time_start: 'Inicio',
     time_end: 'Fin',
     project_label: 'Proyecto',
+    project_effects_btn: 'Efectos de modo',
+    project_effects_modal_title: 'Efectos de luz del proyecto',
+    project_effects_modal_subtip: '💡 Configura y confirma los efectos para cada modo de forma independiente.',
     adjust_light_btn: 'Ajustar luz',
     adjust_panel_title: 'Configuración de luz',
     light_pos_x: 'Posición X:',
@@ -308,6 +320,9 @@ const I18N_LOCALES = {
     time_start: 'Начало',
     time_end: 'Конец',
     project_label: 'Проект',
+    project_effects_btn: 'Эффекты режимов',
+    project_effects_modal_title: 'Подтверждение эффектов режимов',
+    project_effects_modal_subtip: '💡 Выбирайте и подтверждайте эффекты свечения индивидуально для каждого проекта.',
     adjust_light_btn: 'Настройка кольца',
     adjust_panel_title: 'Позиция и размер подсветки',
     light_pos_x: 'Позиция X:',
@@ -371,6 +386,9 @@ const I18N_LOCALES = {
     time_start: 'Début',
     time_end: 'Fin',
     project_label: 'Projet',
+    project_effects_btn: 'Effets de mode',
+    project_effects_modal_title: 'Effets de mode du projet',
+    project_effects_modal_subtip: '💡 Choisissez et confirmez les effets de lumière pour chaque projet séparément.',
     adjust_light_btn: 'Ajuster lumière',
     adjust_panel_title: 'Configuration anneau lumineux',
     light_pos_x: 'Position X :',
@@ -434,6 +452,9 @@ const I18N_LOCALES = {
     time_start: '開始',
     time_end: '終了',
     project_label: 'プロジェクト',
+    project_effects_btn: 'モード効果',
+    project_effects_modal_title: 'プロジェクト別効果確認',
+    project_effects_modal_subtip: '💡 プロジェクトごとに各モードの発光効果を選択・確定します。',
     adjust_light_btn: 'ライト位置調整',
     adjust_panel_title: 'ライト位置・サイズ設定',
     light_pos_x: '水平位置 X:',
@@ -447,35 +468,9 @@ const I18N_LOCALES = {
   }
 };
 
-// 默认机型灯位与尺寸配置表 (支持多项目独立配置、自动识别与持久化)
-const DEFAULT_PROJECT_LIGHT_CONFIGS = {
+// 默认机型各模式灯效方案 (各项目独立选定、确认与持久化)
+const DEFAULT_PROJECT_SCENES = {
   'GQ5023': {
-    left: '67.19%',
-    top: '45.23%',
-    width: '20.63%',
-    scale: 1.0
-  },
-  '3137': {
-    left: '44.55%',
-    top: '38.14%',
-    width: '13.60%',
-    scale: 1.6
-  }
-};
-
-// 2. 全局应用与场景独立状态
-const state = {
-  lang: 'zh-CN',
-  currentPage: 'home',
-  currentProject: 'GQ5023',
-  projects: ['GQ5023', '3137'],
-  projectLightConfigs: {},
-  isCalibratingLight: false,
-  customDiagrams: {},
-  globalBrightness: 80,
-  activeStyle: 'blue',
-  pulseOpt: 'opt_d',
-  scenes: {
     home: {
       enabled: true,
       partyEnabled: true,
@@ -518,6 +513,81 @@ const state = {
       color: '#00a838'
     }
   },
+  '3137': {
+    home: {
+      enabled: true,
+      partyEnabled: true,
+      effect: 'color_rhythm',
+      color: '#00a838'
+    },
+    call: {
+      enabled: true,
+      effect: 'pulsing',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      inCallBreathe: true,
+      inCallColor: '#00e600',
+      inCallColorKey: 'color_grass_green'
+    },
+    notification: {
+      enabled: true,
+      effect: 'breathing',
+      color: '#00e600',
+      colorKey: 'color_grass_green'
+    },
+    charging: {
+      enabled: true,
+      effect: 'streamer',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      duration: '15s',
+      batteryAdaptive: true
+    },
+    music: {
+      enabled: true,
+      effect: 'color_rhythm',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      fourColorPalette: 3
+    },
+    power: {
+      enabled: true,
+      effect: 'pulsing',
+      color: '#00a838'
+    }
+  }
+};
+
+// 默认机型灯位与尺寸配置表 (支持多项目独立配置、自动识别与持久化)
+const DEFAULT_PROJECT_LIGHT_CONFIGS = {
+  'GQ5023': {
+    left: '67.19%',
+    top: '45.23%',
+    width: '20.63%',
+    scale: 1.0
+  },
+  '3137': {
+    left: '44.55%',
+    top: '38.14%',
+    width: '13.60%',
+    scale: 1.6
+  }
+};
+
+// 2. 全局应用与场景独立状态
+const state = {
+  lang: 'zh-CN',
+  currentPage: 'home',
+  currentProject: 'GQ5023',
+  projects: ['GQ5023', '3137'],
+  projectLightConfigs: {},
+  projectScenes: {},
+  isCalibratingLight: false,
+  customDiagrams: {},
+  globalBrightness: 80,
+  activeStyle: 'blue',
+  pulseOpt: 'opt_d',
+  scenes: JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['GQ5023'])),
   schedule: {
     mode: 'scheduled',
     startTime: '14:26',
@@ -587,8 +657,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adSw) adSw.checked = state.scenes.charging.batteryAdaptive;
   }
 
-  // 初始化各场景的动效和颜色
-  initAllScenes();
+  // 初始化项目筛选与各项目专属模式灯效管理系统
+  initProjectSystem();
 
   if (params.has('effect')) {
     const ef = params.get('effect');
@@ -597,7 +667,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 设置初始页面导航
+  // 初始化各场景的动效和颜色
+  initAllScenes();
+
+  // 设置初始页面导航与语言
   navigateTo(state.currentPage);
   if (state.scenes[state.currentPage] && state.scenes[state.currentPage].effect) {
     selectSceneEffect(state.currentPage, state.scenes[state.currentPage].effect);
@@ -606,9 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startRealtimeClock();
   setGlobalBrightness(state.globalBrightness);
   toggleMasterPulse(state.scenes.home.enabled);
-
-  // 初始化项目筛选与自定义示意图管理系统
-  initProjectSystem();
+  refreshAllScenesUI();
 
   // 绑定所有胶囊滚动容器的双向羽化渐隐监听
   initAllScrollersOverflow();
@@ -760,9 +831,9 @@ const SCENE_ALLOWED_EFFECTS = {
 };
 
 /**
- * 选择各场景的灯效（严格遵循各场景支持的灯效列表）
+ * 选择各场景的灯效（严格遵循各场景支持的灯效列表，并按项目独立保存与确认）
  */
-function selectSceneEffect(sceneId, effectName) {
+function selectSceneEffect(sceneId, effectName, fromModal = false) {
   const scData = state.scenes[sceneId];
   if (!scData || !scData.enabled) return;
 
@@ -773,13 +844,16 @@ function selectSceneEffect(sceneId, effectName) {
 
   scData.effect = effectName;
 
+  // 同步保存当前项目的模式灯效方案
+  saveCurrentProjectScenes();
+
   // 1. 更新当前场景内胶囊的高亮选中态
   const track = document.getElementById(`capsulesTrack_${sceneId}`);
   if (track) {
     track.querySelectorAll('.capsule-btn').forEach(btn => {
       const isCur = btn.getAttribute('data-effect') === effectName;
       btn.classList.toggle('active', isCur);
-      if (isCur) {
+      if (isCur && !fromModal) {
         btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }
     });
@@ -819,6 +893,19 @@ function selectSceneEffect(sceneId, effectName) {
   }
 
   updateStatusChips();
+
+  // 6. 若模式灯效弹窗已展开，实时刷新弹窗内选中态
+  if (isProjectEffectsModalOpen()) {
+    renderProjectEffectsModal();
+  }
+
+  // 7. 弹出明确的模式灯效确认 Toast
+  const sceneName = dict[`scene_${sceneId}`] || dict[`page_${sceneId}`] || sceneId;
+  const effectTitle = dict[`effect_${effectName}`] || effectName;
+  const confirmMsg = (state.lang === 'zh-CN')
+    ? `已确认 [${state.currentProject}] ${sceneName} 灯效为: ${effectTitle}`
+    : `Confirmed [${state.currentProject}] ${sceneName} effect: ${effectTitle}`;
+  showUploadToast(confirmMsg);
 }
 
 /**
@@ -926,6 +1013,7 @@ function selectSceneColor(sceneId, colorHex, colorKey, subKey = 'main') {
   // 4. 应用颜色到发光环及胶囊联动描边
   applyHaloColor(colorHex);
   updateStatusChips();
+  saveCurrentProjectScenes();
 }
 
 /**
@@ -1005,6 +1093,7 @@ function pickSceneWheelColor(e, sceneId, subKey = 'main') {
 
   applyHaloColor(pickedHex);
   updateStatusChips();
+  saveCurrentProjectScenes();
 }
 
 function updateWheelThumb(boxId, colorHex) {
@@ -1054,6 +1143,7 @@ function toggleMasterPulse(checked) {
   const slider = document.getElementById('homeBrightnessSlider');
   if (slider) slider.disabled = !checked;
   document.querySelectorAll('#masterControlledContent button').forEach(btn => btn.disabled = !checked);
+  saveCurrentProjectScenes();
 }
 
 /**
@@ -1087,6 +1177,7 @@ function togglePartyMode(checked) {
       mockup.classList.add('fx-breathing');
     }
   }
+  saveCurrentProjectScenes();
 }
 
 /**
@@ -1128,10 +1219,12 @@ function toggleSceneSwitch(sceneId, checked) {
       inCallRow.style.pointerEvents = checked ? 'auto' : 'none';
     }
   }
+  saveCurrentProjectScenes();
 }
 
 function toggleInCallBreathe(checked) {
   state.scenes.call.inCallBreathe = checked;
+  saveCurrentProjectScenes();
 }
 
 function toggleBatteryAdaptive(checked) {
@@ -1146,6 +1239,7 @@ function toggleBatteryAdaptive(checked) {
     applyHaloColor(state.scenes.charging.color || '#00e600');
   }
   updateStatusChips();
+  saveCurrentProjectScenes();
 }
 
 /**
@@ -1277,7 +1371,6 @@ function switchLanguage(langCode) {
   });
 
   updateLanguageDisplay();
-  renderProjectOptions();
 }
 
 /**
@@ -1336,6 +1429,10 @@ function updateLanguageDisplay() {
   });
 
   updateStatusChips();
+  renderProjectOptions();
+  if (isProjectEffectsModalOpen()) {
+    renderProjectEffectsModal();
+  }
 }
 
 /**
@@ -1685,6 +1782,10 @@ function toggleLightAdjustPanel(forceState) {
   if (btn) btn.classList.toggle('active', isVisible);
   state.isCalibratingLight = isVisible;
 
+  if (isVisible) {
+    toggleProjectEffectsModal(false);
+  }
+
   document.querySelectorAll('.device-mockup-new').forEach(mockup => {
     mockup.classList.toggle('calibrating-active', isVisible);
   });
@@ -1941,6 +2042,214 @@ function setupMockupClickCalibration() {
 }
 
 /**
+ * 确保所有注册的项目均具备合法的模式灯效配置
+ */
+function ensureAllProjectsHaveScenes() {
+  if (!state.projectScenes || typeof state.projectScenes !== 'object') {
+    state.projectScenes = {};
+  }
+  if (!state.projectScenes['GQ5023']) {
+    state.projectScenes['GQ5023'] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['GQ5023']));
+  }
+  if (!state.projectScenes['3137']) {
+    state.projectScenes['3137'] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['3137']));
+  }
+  state.projects.forEach(p => {
+    if (!state.projectScenes[p]) {
+      state.projectScenes[p] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['GQ5023']));
+    }
+  });
+}
+
+/**
+ * 载入当前项目的专属各模式灯效与配置
+ */
+function loadCurrentProjectScenes() {
+  ensureAllProjectsHaveScenes();
+  const curData = state.projectScenes[state.currentProject];
+  if (curData) {
+    state.scenes = JSON.parse(JSON.stringify(curData));
+  }
+}
+
+/**
+ * 保存当前项目下所有模式的灯效与状态到 localStorage
+ */
+function saveCurrentProjectScenes() {
+  if (!state.projectScenes) state.projectScenes = {};
+  state.projectScenes[state.currentProject] = JSON.parse(JSON.stringify(state.scenes));
+  try {
+    localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
+  } catch (e) {
+    console.warn('Failed to save project scenes to localStorage', e);
+  }
+}
+
+/**
+ * 刷新所有场景页面的 UI 元素（胶囊选中态、右上角提示文案、示意图动效、选色高亮态等）
+ */
+function refreshAllScenesUI() {
+  const scenes = ['call', 'notification', 'charging', 'music', 'power'];
+  const dict = I18N_LOCALES[state.lang] || I18N_LOCALES['zh-CN'];
+
+  scenes.forEach(scId => {
+    const scData = state.scenes[scId];
+    if (!scData) return;
+
+    // 1. 刷新胶囊选中态
+    const track = document.getElementById(`capsulesTrack_${scId}`);
+    if (track) {
+      track.querySelectorAll('.capsule-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-effect') === scData.effect);
+      });
+    }
+
+    // 2. 刷新右上角灯效文案提示
+    const hintElem = document.getElementById(`effectHint_${scId}`);
+    if (hintElem && scData.effect && dict[`effect_${scData.effect}`]) {
+      hintElem.textContent = dict[`effect_${scData.effect}`];
+    }
+
+    // 3. 刷新该场景示意图动效类名
+    applySceneEffectToMockup(scId, scData.effect);
+
+    // 4. 刷新选色盘高亮态
+    const presetsRow = document.getElementById(`colorPresets_${scId}_main`);
+    if (presetsRow) {
+      presetsRow.querySelectorAll('.color-ring-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-color') === scData.color);
+      });
+    }
+
+    // 5. 刷新具体场景特性
+    if (scId === 'music') {
+      updateMusicColorModules(scData.effect);
+    }
+    if (scId === 'charging') {
+      const adSw = document.getElementById('switch_batteryAdaptive');
+      if (adSw) adSw.checked = !!scData.batteryAdaptive;
+      toggleBatteryAdaptive(scData.batteryAdaptive);
+    }
+    if (scId === 'call') {
+      const callSw = document.getElementById('switch_inCallBreathe');
+      if (callSw) callSw.checked = !!scData.inCallBreathe;
+    }
+  });
+
+  // 主页动效与颜色
+  if (state.currentPage === 'home') {
+    applySceneEffectToMockup('home', state.scenes.home.effect || 'color_rhythm');
+    if (state.scenes.home.color) applyHaloColor(state.scenes.home.color);
+  } else if (state.scenes[state.currentPage]) {
+    applySceneEffectToMockup(state.currentPage, state.scenes[state.currentPage].effect);
+    if (state.scenes[state.currentPage].color) applyHaloColor(state.scenes[state.currentPage].color);
+  }
+
+  updateStatusChips();
+  renderProjectOptions();
+  if (isProjectEffectsModalOpen()) {
+    renderProjectEffectsModal();
+  }
+}
+
+/**
+ * 判断模式灯效弹窗是否展开
+ */
+function isProjectEffectsModalOpen() {
+  const modal = document.getElementById('projectEffectsModal');
+  return modal && modal.style.display !== 'none';
+}
+
+/**
+ * 展开/收起项目模式灯效确认弹窗
+ */
+function toggleProjectEffectsModal(forceState) {
+  const modal = document.getElementById('projectEffectsModal');
+  const btn = document.getElementById('btnToggleProjectEffects');
+  if (!modal) return;
+
+  const isVisible = (forceState !== undefined) ? forceState : (modal.style.display === 'none');
+  modal.style.display = isVisible ? 'flex' : 'none';
+  if (btn) btn.classList.toggle('active', isVisible);
+
+  if (isVisible) {
+    toggleLightAdjustPanel(false);
+    renderProjectEffectsModal();
+  }
+}
+
+/**
+ * 渲染项目模式灯效确认弹窗列表
+ */
+function renderProjectEffectsModal() {
+  const tag = document.getElementById('effectsModalProjectTag');
+  if (tag) tag.textContent = state.currentProject;
+
+  const container = document.getElementById('projectEffectsList');
+  if (!container) return;
+
+  const dict = I18N_LOCALES[state.lang] || I18N_LOCALES['zh-CN'];
+  const modes = [
+    { id: 'call', icon: '📞', name: dict.scene_call || '来电' },
+    { id: 'notification', icon: '🔔', name: dict.scene_notification || '通知' },
+    { id: 'charging', icon: '⚡', name: dict.scene_charging || '充电' },
+    { id: 'music', icon: '🎵', name: dict.scene_music || '音乐' },
+    { id: 'power', icon: '⏻', name: dict.scene_power || '开关机' }
+  ];
+
+  container.innerHTML = '';
+
+  modes.forEach(m => {
+    const scData = state.scenes[m.id] || {};
+    const curEffect = scData.effect || (SCENE_ALLOWED_EFFECTS[m.id] ? SCENE_ALLOWED_EFFECTS[m.id][0] : 'breathing');
+    const curEffectName = dict[`effect_${curEffect}`] || curEffect;
+
+    const card = document.createElement('div');
+    card.className = 'effect-mode-card';
+
+    const header = document.createElement('div');
+    header.className = 'effect-mode-header';
+    header.innerHTML = `
+      <div class="effect-mode-title">
+        <span>${m.icon}</span>
+        <span>${m.name}</span>
+      </div>
+      <span class="effect-mode-current-tag">${curEffectName}</span>
+    `;
+    card.appendChild(header);
+
+    const chipsGroup = document.createElement('div');
+    chipsGroup.className = 'mode-chips-group';
+
+    const allowed = SCENE_ALLOWED_EFFECTS[m.id] || ['breathing', 'pulsing'];
+    allowed.forEach(eff => {
+      const isCur = eff === curEffect;
+      const effName = dict[`effect_${eff}`] || eff;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mode-chip-btn' + (isCur ? ' active' : '');
+      btn.innerHTML = `${isCur ? '✓ ' : ''}${effName}`;
+      btn.onclick = () => {
+        selectSceneEffect(m.id, eff, true);
+      };
+      chipsGroup.appendChild(btn);
+    });
+
+    card.appendChild(chipsGroup);
+    container.appendChild(card);
+  });
+}
+
+/**
+ * 确认并关闭项目模式灯效弹窗
+ */
+function confirmAndCloseProjectEffectsModal() {
+  toggleProjectEffectsModal(false);
+  const isZh = state.lang === 'zh-CN';
+  showUploadToast(isZh ? `已确认并保存 [${state.currentProject}] 各模式灯效方案` : `Confirmed and saved mode effects for [${state.currentProject}]`);
+}
+
+/**
  * 初始化项目筛选器与示意图缓存
  */
 function initProjectSystem() {
@@ -1976,15 +2285,25 @@ function initProjectSystem() {
     if (savedCurrent && state.projects.includes(savedCurrent)) {
       state.currentProject = savedCurrent;
     }
+
+    // 读取多项目专属模式灯效方案
+    const savedProjectScenes = localStorage.getItem('ambient_light_project_scenes');
+    if (savedProjectScenes) {
+      state.projectScenes = JSON.parse(savedProjectScenes) || {};
+    }
   } catch (e) {
     console.warn('Error reading project storage', e);
   }
+
+  ensureAllProjectsHaveScenes();
+  loadCurrentProjectScenes();
 
   renderProjectOptions();
   updateResetDiagramButtonVisibility();
   applyProjectLightConfig(state.currentProject);
   updateAllMockupImages();
   setupMockupClickCalibration();
+  refreshAllScenesUI();
 }
 
 /**
@@ -2044,6 +2363,10 @@ function handleProjectDropdownChange(val) {
  * 切换当前项目型号
  */
 function switchProject(projectId) {
+  // 1. 保存前一个项目的各模式配置
+  saveCurrentProjectScenes();
+
+  // 2. 切换当前项目
   state.currentProject = projectId;
   try {
     localStorage.setItem('ambient_light_current_project', projectId);
@@ -2051,9 +2374,25 @@ function switchProject(projectId) {
   const select = document.getElementById('desktopProjectSelect');
   if (select) select.value = projectId;
 
+  // 3. 载入新项目的专属各模式灯效与配置
+  loadCurrentProjectScenes();
+
+  // 4. 更新示意图、灯圈物理位置
   updateResetDiagramButtonVisibility();
   applyProjectLightConfig(projectId);
   updateAllMockupImages();
+
+  // 5. 全面刷新所有场景模式的 UI 胶囊选中态、右上角提示文本、Mockup 动效
+  refreshAllScenesUI();
+
+  // 6. 如果模式灯效弹窗已展开，实时刷新弹窗
+  if (isProjectEffectsModalOpen()) {
+    renderProjectEffectsModal();
+  }
+
+  // 7. Toast 提示
+  const isZh = state.lang === 'zh-CN';
+  showUploadToast(isZh ? `已切换至项目 ${projectId}，已载入该项目的专属模式灯效` : `Switched to project ${projectId}, loaded project mode effects`);
 }
 
 /**
@@ -2066,6 +2405,13 @@ function addNewProject(projectName) {
       localStorage.setItem('ambient_light_projects_list', JSON.stringify(state.projects));
     } catch (e) {
       console.warn('Failed to save project list', e);
+    }
+    // 为新项目初始化独立的模式灯效配置
+    if (!state.projectScenes[projectName]) {
+      state.projectScenes[projectName] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['GQ5023']));
+      try {
+        localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
+      } catch (e) {}
     }
     renderProjectOptions();
   }

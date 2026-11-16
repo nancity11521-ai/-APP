@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>通知氛围灯效果设置 - 多语言交互原型 (DYNAMIC SOUND)</title>
-  <link rel="stylesheet" href="./style.css?v=20261116_v4">
+  <link rel="stylesheet" href="./style.css?v=20261116_v6">
 </head>
 <body>
   <!-- 桌面端悬浮控制工具栏 (语言切换 + 项目筛选与示意图更换) -->
@@ -32,6 +32,10 @@
         <option value="__upload__">📁 更换示意图...</option>
         <option value="__new_project__">➕ 新增项目型号...</option>
       </select>
+      <button type="button" class="btn-adjust-light btn-project-effects" id="btnToggleProjectEffects" onclick="toggleProjectEffectsModal()" title="模式灯效选择与确认">
+        <span>⚡</span>
+        <span class="btn-adjust-text" data-i18n="project_effects_btn">模式灯效</span>
+      </button>
       <button type="button" class="btn-adjust-light" id="btnToggleLightAdjust" onclick="toggleLightAdjustPanel()" title="调整灯位与尺寸">
         <span>🎯</span>
         <span class="btn-adjust-text" data-i18n="adjust_light_btn">调整灯位</span>
@@ -98,6 +102,31 @@
         <button type="button" class="btn-adjust-action primary" onclick="toggleLightAdjustPanel(false)">
           <span data-i18n="save_done">✓ 完成</span>
         </button>
+      </div>
+    </div>
+
+    <!-- 项目各模式灯效确认面板 (可折叠浮层) -->
+    <div class="project-effects-modal" id="projectEffectsModal" style="display: none;">
+      <div class="modal-card">
+        <div class="adjust-panel-header">
+          <div class="adjust-panel-title">
+            <span>⚡</span>
+            <span data-i18n="project_effects_modal_title">项目各模式灯效确认</span>
+            <span class="adjust-panel-project-tag" id="effectsModalProjectTag">GQ5023</span>
+          </div>
+          <button type="button" class="btn-close-adjust" onclick="toggleProjectEffectsModal(false)" title="关闭">✕</button>
+        </div>
+        <div class="modal-subtip" data-i18n="project_effects_modal_subtip">
+          💡 在此为当前项目选择并确认各模式的专属灯效，多项目独立记忆与切换。
+        </div>
+        <div class="project-effects-rows" id="projectEffectsList">
+          <!-- 动态渲染各模式卡片及可点击胶囊 -->
+        </div>
+        <div class="modal-action-bar">
+          <button type="button" class="btn-modal-done" onclick="toggleProjectEffectsModal(false)">
+            <span data-i18n="save_done">✓ 确认完成</span>
+          </button>
+        </div>
       </div>
     </div>
   </aside>
@@ -1052,6 +1081,6 @@
     </div>
   </main>
 
-  <script src="./app.js?v=20261116_v4"></script>
+  <script src="./app.js?v=20261116_v6"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>通知氛围灯效果设置 - 多语言交互原型 (DYNAMIC SOUND)</title>
-  <link rel="stylesheet" href="./style.css?v=20261116_v10">
+  <link rel="stylesheet" href="./style.css?v=20261116_v11">
 </head>
 <body>
   <!-- 桌面端悬浮控制工具栏 (语言切换 + 项目筛选与示意图更换) -->
@@ -658,6 +658,49 @@
                     </svg>
                   </span>
                 </button>
+                <!-- 呼吸 -->
+                <button type="button" class="capsule-btn " data-effect="breathing" onclick="selectSceneEffect('charging', 'breathing')">
+                  <span class="capsule-icon">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <defs>
+                        <linearGradient id="gradBreathing_charging" x1="0%" y1="100%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#06b6d4"/>
+                          <stop offset="50%" stop-color="#3b82f6"/>
+                          <stop offset="100%" stop-color="#a855f7"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="12" cy="12" r="8.5" stroke="url(#gradBreathing_charging)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3.2 2"/>
+                      <circle cx="12" cy="12" r="3.2" fill="url(#gradBreathing_charging)"/>
+                    </svg>
+                  </span>
+                  <span class="capsule-text" data-i18n="effect_breathing">呼吸</span>
+                  <span class="check-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                </button>
+                <!-- 脉动 -->
+                <button type="button" class="capsule-btn " data-effect="pulsing" onclick="selectSceneEffect('charging', 'pulsing')">
+                  <span class="capsule-icon">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <defs>
+                        <linearGradient id="gradPulsing_charging" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#ec4899"/>
+                          <stop offset="50%" stop-color="#f43f5e"/>
+                          <stop offset="100%" stop-color="#f97316"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M 4 12 L 8 12 L 10 7 L 14 17 L 16 12 L 20 12" stroke="url(#gradPulsing_charging)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="capsule-text" data-i18n="effect_pulsing">脉动</span>
+                  <span class="check-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -1088,6 +1131,6 @@
     </div>
   </main>
 
-  <script src="./app.js?v=20261116_v10"></script>
+  <script src="./app.js?v=20261116_v11"></script>
 </body>
 </html>

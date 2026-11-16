@@ -841,7 +841,7 @@ function updateMusicColorModules(effectName) {
 const SCENE_ALL_CANDIDATE_EFFECTS = {
   call: ['breathing', 'pulsing'],
   notification: ['breathing', 'pulsing'],
-  charging: ['waterflow', 'streamer'],
+  charging: ['waterflow', 'streamer', 'breathing', 'pulsing'],
   music: ['color_rhythm', 'four_color', 'breathing'],
   power: ['breathing', 'pulsing']
 };
@@ -2491,6 +2491,19 @@ function initProjectSystem() {
     const savedEnabled = localStorage.getItem('ambient_light_project_enabled_effects');
     if (savedEnabled) {
       state.projectEnabledEffects = JSON.parse(savedEnabled) || {};
+    }
+    // 升级充电模式的候选灯效列表，确保新增的呼吸和脉动能够平滑默认支持
+    if (state.projectEnabledEffects) {
+      Object.keys(state.projectEnabledEffects).forEach(pId => {
+        const pMap = state.projectEnabledEffects[pId];
+        if (pMap && pMap.charging) {
+          ['breathing', 'pulsing'].forEach(eff => {
+            if (!pMap.charging.includes(eff)) {
+              pMap.charging.push(eff);
+            }
+          });
+        }
+      });
     }
   } catch (e) {
     console.warn('Error reading project storage', e);

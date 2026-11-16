@@ -558,29 +558,22 @@ body {
   opacity: var(--device-halo-opacity, 0.85);
   filter: brightness(var(--device-halo-brightness, 1));
   transition: opacity 0.15s ease, filter 0.15s ease;
+  overflow: hidden;
 }
 
-/* 动态核心环 */
+/* 动态核心灯带：仅灯带自身发光，彻底杜绝外围晕色与向外漫射 */
 .halo-core-ring {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   position: absolute;
-  box-shadow: 0 0 16px var(--active-halo-color, #00a838);
-  transition: box-shadow 0.3s ease;
+  box-shadow: none !important;
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-/* 外围柔焦发光 */
+/* 外围柔焦发光：完全禁用，防止在灯带周围形成大面积彩色晕染 */
 .halo-ambient-glow {
-  position: absolute;
-  width: 140%;
-  height: 140%;
-  border-radius: 50%;
-  filter: blur(12px);
-  background: radial-gradient(circle, var(--active-halo-color, #00a838) 0%, transparent 70%);
-  opacity: calc(var(--device-halo-opacity, 0.85) * 0.65);
-  transform: scale(var(--device-halo-glow-scale, 1));
-  transition: background 0.3s ease, opacity 0.1s ease, transform 0.1s ease;
+  display: none !important;
 }
 
 /* 1. 呼吸动效 (Breathing) */
@@ -588,38 +581,27 @@ body {
   background-color: var(--active-halo-color, #00e600);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
-  box-shadow: 0 0 18px var(--active-halo-color, #00e600);
+  box-shadow: none !important;
   animation: animHaloBreathing 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 .fx-breathing .halo-ambient-glow {
-  background: radial-gradient(circle, var(--active-halo-color, #00e600) 0%, transparent 70%);
-  animation: animGlowBreathing 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  display: none !important;
 }
 
 @keyframes animHaloBreathing {
   0%, 100% {
-    opacity: 0.38;
+    opacity: 0.35;
     filter: brightness(0.85);
-    box-shadow: 0 0 8px var(--active-halo-color, #00e600);
-    transform: scale(0.98);
   }
   50% {
     opacity: 1;
     filter: brightness(1.25);
-    box-shadow: 0 0 26px var(--active-halo-color, #00e600);
-    transform: scale(1.02);
   }
 }
 
 @keyframes animGlowBreathing {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(0.92);
-  }
-  50% {
-    opacity: 0.75;
-    transform: scale(1.15);
-  }
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0; }
 }
 
 /* 2. 脉动动效 (Pulsing - 原闪烁升级) */
@@ -628,49 +610,39 @@ body {
   background-color: var(--active-halo-color, #00e600);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
-  box-shadow: 0 0 18px var(--active-halo-color, #00e600);
+  box-shadow: none !important;
   animation: animHaloPulsing 1.35s cubic-bezier(0.2, 0.8, 0.3, 1) infinite;
 }
 .fx-pulsing .halo-ambient-glow,
 .fx-blinking .halo-ambient-glow {
-  background: radial-gradient(circle, var(--active-halo-color, #00e600) 0%, transparent 70%);
-  animation: animGlowPulsing 1.35s cubic-bezier(0.2, 0.8, 0.3, 1) infinite;
+  display: none !important;
 }
 
 @keyframes animHaloPulsing {
   0%, 100% {
-    opacity: 0.3;
-    transform: scale(0.97);
-    box-shadow: 0 0 6px var(--active-halo-color, #00e600);
+    opacity: 0.25;
+    filter: brightness(0.85);
   }
   16% {
     opacity: 0.98;
-    transform: scale(1.03);
     filter: brightness(1.3);
-    box-shadow: 0 0 26px var(--active-halo-color, #00e600);
   }
   30% {
-    opacity: 0.45;
-    transform: scale(0.99);
+    opacity: 0.4;
+    filter: brightness(0.9);
   }
   46% {
     opacity: 1;
-    transform: scale(1.04);
     filter: brightness(1.35);
-    box-shadow: 0 0 28px var(--active-halo-color, #00e600);
   }
   68% {
-    opacity: 0.3;
-    transform: scale(0.97);
+    opacity: 0.25;
+    filter: brightness(0.85);
   }
 }
 
 @keyframes animGlowPulsing {
-  0%, 100% { opacity: 0.2; transform: scale(0.92); }
-  16% { opacity: 0.7; transform: scale(1.12); }
-  30% { opacity: 0.35; transform: scale(1.0); }
-  46% { opacity: 0.8; transform: scale(1.16); }
-  68% { opacity: 0.2; transform: scale(0.92); }
+  0%, 100% { opacity: 0; }
 }
 
 /* 3. 流光动效 (Streamer - 全环360°点亮，高光顺时针流转，对齐参考图右侧) */
@@ -689,19 +661,11 @@ body {
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
   animation: animHaloRotate 1.5s linear infinite;
-  box-shadow: 0 0 16px var(--active-halo-color, #00a838);
+  box-shadow: none !important;
   opacity: 1;
 }
 .fx-streamer .halo-ambient-glow {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg 110deg,
-    var(--active-halo-color, #00a838) 260deg,
-    transparent 360deg
-  );
-  animation: animHaloRotate 1.5s linear infinite;
-  opacity: 0.55;
-  filter: blur(14px);
+  display: none !important;
 }
 
 /* 4. 流水动效 (Water Flow - 约270°高亮弧流速追逐，带90°明显暗区缺口，对齐参考图左侧) */
@@ -719,19 +683,11 @@ body {
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
   animation: animHaloRotate 1.35s linear infinite;
-  box-shadow: 0 0 20px var(--active-halo-color, #00a838);
+  box-shadow: none !important;
   opacity: 1;
 }
 .fx-waterflow .halo-ambient-glow {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg 95deg,
-    var(--active-halo-color, #00a838) 270deg 355deg,
-    transparent 360deg
-  );
-  animation: animHaloRotate 1.35s linear infinite;
-  opacity: 0.65;
-  filter: blur(14px);
+  display: none !important;
 }
 
 /* 5. 彩色律动 (Color Rhythm) */
@@ -746,18 +702,10 @@ body {
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
   animation: animHaloRotate 3s linear infinite, animHaloBreathing 1.8s ease-in-out infinite;
+  box-shadow: none !important;
 }
 .fx-color_rhythm .halo-ambient-glow {
-  background: conic-gradient(
-    #f43f5e 0deg,
-    #8b5cf6 90deg,
-    #06b6d4 180deg,
-    #10b981 270deg,
-    #f43f5e 360deg
-  );
-  animation: animHaloGlowRotate 3s linear infinite;
-  opacity: 0.55;
-  filter: blur(14px);
+  display: none !important;
 }
 
 @keyframes animHaloRotate {
@@ -776,33 +724,26 @@ body {
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
   animation: animFourColorRhythmRing 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  box-shadow: none !important;
 }
 
 .fx-four_color .halo-ambient-glow {
-  background-color: var(--music-c1, #fffd62);
-  border-radius: 50%;
-  filter: blur(14px);
-  animation: animFourColorRhythmGlow 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  display: none !important;
 }
 
 @keyframes animFourColorRhythmRing {
   0% {
     background-color: var(--music-c1, #fffd62);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   11% {
     background-color: var(--music-c1, #fffd62);
     opacity: 1;
-    transform: scale(1.02);
-    box-shadow: 0 0 22px var(--music-c1, #fffd62);
+    filter: brightness(1.2);
   }
   22% {
     background-color: var(--music-c1, #fffd62);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   24.9% {
     background-color: var(--music-c1, #fffd62);
@@ -811,20 +752,15 @@ body {
   25% {
     background-color: var(--music-c2, #ff5f10);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   36% {
     background-color: var(--music-c2, #ff5f10);
     opacity: 1;
-    transform: scale(1.02);
-    box-shadow: 0 0 22px var(--music-c2, #ff5f10);
+    filter: brightness(1.2);
   }
   47% {
     background-color: var(--music-c2, #ff5f10);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   49.9% {
     background-color: var(--music-c2, #ff5f10);
@@ -833,20 +769,15 @@ body {
   50% {
     background-color: var(--music-c3, #2dffee);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   61% {
     background-color: var(--music-c3, #2dffee);
     opacity: 1;
-    transform: scale(1.02);
-    box-shadow: 0 0 22px var(--music-c3, #2dffee);
+    filter: brightness(1.2);
   }
   72% {
     background-color: var(--music-c3, #2dffee);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   74.9% {
     background-color: var(--music-c3, #2dffee);
@@ -855,25 +786,19 @@ body {
   75% {
     background-color: var(--music-c4, #2af72e);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   86% {
     background-color: var(--music-c4, #2af72e);
     opacity: 1;
-    transform: scale(1.02);
-    box-shadow: 0 0 22px var(--music-c4, #2af72e);
+    filter: brightness(1.2);
   }
   97% {
     background-color: var(--music-c4, #2af72e);
     opacity: 0;
-    transform: scale(0.96);
-    box-shadow: 0 0 0 transparent;
   }
   100% {
     background-color: var(--music-c4, #2af72e);
     opacity: 0;
-    transform: scale(0.96);
   }
 }
 

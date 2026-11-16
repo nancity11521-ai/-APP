@@ -545,7 +545,7 @@ body {
 .halo-ring-emitter {
   position: absolute;
   left: 67.19%;
-  top: 45.45%;
+  top: 45.23%;
   width: 20.63%;
   aspect-ratio: 1 / 1;
   transform: translate(-50%, -50%);
@@ -561,7 +561,7 @@ body {
   overflow: hidden;
 }
 
-/* 动态核心灯带：仅灯带自身发光，彻底杜绝外围晕色与向外漫射 */
+/* 动态核心灯带：仅固定环形光槽自身发光(64%~94%)，彻底杜绝外围漫射晕染与内部扬声器网孔误照亮 */
 .halo-core-ring {
   width: 100%;
   height: 100%;
@@ -569,6 +569,8 @@ body {
   position: absolute;
   box-shadow: none !important;
   transition: opacity 0.3s ease, filter 0.3s ease;
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
 }
 
 /* 外围柔焦发光：完全禁用，防止在灯带周围形成大面积彩色晕染 */
@@ -579,8 +581,8 @@ body {
 /* 1. 呼吸动效 (Breathing) */
 .fx-breathing .halo-core-ring {
   background-color: var(--active-halo-color, #00e600);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
   box-shadow: none !important;
   animation: animHaloBreathing 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
@@ -608,8 +610,8 @@ body {
 .fx-pulsing .halo-core-ring,
 .fx-blinking .halo-core-ring {
   background-color: var(--active-halo-color, #00e600);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
   box-shadow: none !important;
   animation: animHaloPulsing 1.35s cubic-bezier(0.2, 0.8, 0.3, 1) infinite;
 }
@@ -658,8 +660,8 @@ body {
     rgba(var(--active-halo-rgb, 0, 168, 56), 0.65) 325deg,
     rgba(var(--active-halo-rgb, 0, 168, 56), 0.18) 360deg
   );
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
   animation: animHaloRotate 1.5s linear infinite;
   box-shadow: none !important;
   opacity: 1;
@@ -680,8 +682,8 @@ body {
     var(--active-halo-color, #00a838) 355deg,
     transparent 360deg
   );
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 15px), #fff calc(100% - 14px));
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
   animation: animHaloRotate 1.35s linear infinite;
   box-shadow: none !important;
   opacity: 1;
@@ -699,8 +701,8 @@ body {
     #10b981 270deg,
     #f43f5e 360deg
   );
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
   animation: animHaloRotate 3s linear infinite, animHaloBreathing 1.8s ease-in-out infinite;
   box-shadow: none !important;
 }
@@ -721,8 +723,8 @@ body {
 /* 6. 四色律动 (4-Color Rhythm): 每次只显示一个颜色，每熄灭一次换一个颜色 */
 .fx-four_color .halo-core-ring {
   background-color: var(--music-c1, #fffd62);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #fff calc(100% - 13px));
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0% 64%, #fff 66% 92%, transparent 94% 100%);
   animation: animFourColorRhythmRing 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   box-shadow: none !important;
 }

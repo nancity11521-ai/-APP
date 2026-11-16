@@ -1815,15 +1815,77 @@ function autoDetectLightRingFromImage(imgElement) {
     const topPct = ((cy / h) * 100).toFixed(2) + '%';
     const widthPct = ((diameter / w) * 100).toFixed(2) + '%';
 
+    // 自动将底图中被检测出的彩色标记光圈清洗为中性底色，彻底杜绝“底图印死的光圈 + CSS动态变色光圈”造成重叠双圈
+    for (let i = 0; i < inliers.length; i++) {
+      const pt = inliers[i];
+      const idx = (pt.y * w + pt.x) * 4;
+      data[idx] = 40;
+      data[idx + 1] = 40;
+      data[idx + 2] = 42;
+    }
+    ctx.putImageData(imgData, 0, 0);
+    const cleanedDataUrl = canvas.toDataURL('image/png');
+
     return {
       left: leftPct,
       top: topPct,
-      width: widthPct
+      width: widthPct,
+      cleanedDataUrl: cleanedDataUrl
     };
   } catch (err) {
     console.warn('Auto detect failed:', err);
     return null;
   }
+}
+
+/**
+ * 清除图片中自带的高饱和度指示色环，将其转化为中性深色线稿，确保变色时只呈现单一动态光圈
+ */
+function cleanIndicatorRingsFromImage(dataUrl, callback) {
+  if (!dataUrl) return callback(dataUrl);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    if (!w || !h) return callback(dataUrl);
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+    let modified = false;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const a = data[i + 3];
+      if (a > 30) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const maxVal = Math.max(r, g, b);
+        const minVal = Math.min(r, g, b);
+        if (maxVal - minVal > 20) {
+          data[i] = 40;
+          data[i + 1] = 40;
+          data[i + 2] = 42;
+          modified = true;
+        }
+      }
+    }
+
+    if (modified) {
+      ctx.putImageData(imgData, 0, 0);
+      callback(canvas.toDataURL('image/png'));
+    } else {
+      callback(dataUrl);
+    }
+  };
+  img.onerror = function() {
+    callback(dataUrl);
+  };
+  img.src = dataUrl;
 }
 
 /**
@@ -1895,6 +1957,16 @@ function initProjectSystem() {
     const savedCustom = localStorage.getItem('ambient_light_custom_diagrams');
     if (savedCustom) {
       state.customDiagrams = JSON.parse(savedCustom) || {};
+    }
+    if (state.customDiagrams && state.customDiagrams['3137']) {
+      // 3137 已有官方纯净底图，若用户本地曾保存过老带色截图，清理并更新以消除双圈
+      cleanIndicatorRingsFromImage(state.customDiagrams['3137'], function(cleanUrl) {
+        state.customDiagrams['3137'] = cleanUrl;
+        try {
+          localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+        } catch (e) {}
+        updateAllMockupImages();
+      });
     }
     const savedConfigs = localStorage.getItem('ambient_light_project_configs');
     if (savedConfigs) {
@@ -2028,9 +2100,16 @@ function handleProjectDiagramUpload(event) {
         curConf.top = detected.top;
         curConf.width = detected.width;
         curConf.scale = 1.0;
+        // 如果检测到并清除了原图中的彩色指示圈，保存无双圈的干净底图
+        if (detected.cleanedDataUrl) {
+          state.customDiagrams[state.currentProject] = detected.cleanedDataUrl;
+          try {
+            localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+          } catch (e) {}
+        }
         saveProjectLightConfig(state.currentProject, curConf);
         applyProjectLightConfig(state.currentProject);
-        showUploadToast((state.lang === 'zh-CN' ? '已自动识别灯位: ' : 'Auto-detected light: ') + `${detected.left}, ${detected.top}`);
+        showUploadToast((state.lang === 'zh-CN' ? '已自动识别灯位并消减双圈: ' : 'Auto-detected light (single ring): ') + `${detected.left}, ${detected.top}`);
       } else {
         curConf.scale = 1.0;
         saveProjectLightConfig(state.currentProject, curConf);

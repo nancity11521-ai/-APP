@@ -57,8 +57,11 @@ const I18N_LOCALES = {
     time_end: '结束',
     project_label: '项目',
     project_effects_btn: '模式灯效',
-    project_effects_modal_title: '项目各模式灯效确认',
-    project_effects_modal_subtip: '💡 在此为当前项目选择并确认各模式的专属灯效，各项目独立记忆与生效。',
+    project_effects_modal_title: '模式灯效选择与确认',
+    project_effects_modal_subtip: '💡 勾选当前项目在此模式下支持的灯效，仅选中的灯效才会出现在 APP 设置页中供用户选择。',
+    effects_all_enabled: '全部启用',
+    effects_selected_count: '已选 {n} 项',
+    at_least_one_effect: '每个模式请至少保留一种灯效',
     adjust_light_btn: '调整灯位',
     adjust_panel_title: '灯位与尺寸配置',
     light_pos_x: '水平位置 X:',
@@ -123,8 +126,11 @@ const I18N_LOCALES = {
     time_end: 'End',
     project_label: 'Project',
     project_effects_btn: 'Mode Effects',
-    project_effects_modal_title: 'Project Mode Effects',
-    project_effects_modal_subtip: '💡 Configure and confirm light effects for each mode. Saved independently per project.',
+    project_effects_modal_title: 'Mode Effects Configuration',
+    project_effects_modal_subtip: '💡 Select effects supported by this project. Only checked effects will appear in the APP settings page.',
+    effects_all_enabled: 'All Enabled',
+    effects_selected_count: '{n} Selected',
+    at_least_one_effect: 'Please keep at least one effect for each mode',
     adjust_light_btn: 'Adjust Light',
     adjust_panel_title: 'Light Ring Setup',
     light_pos_x: 'Horizontal X:',
@@ -586,6 +592,7 @@ const state = {
   projects: ['GQ5023', '3137'],
   projectLightConfigs: {},
   projectScenes: {},
+  projectEnabledEffects: {},
   isCalibratingLight: false,
   customDiagrams: {},
   globalBrightness: 80,
@@ -825,14 +832,134 @@ function updateMusicColorModules(effectName) {
   }
 }
 
-// 各场景明确允许的专属灯效配置表
-const SCENE_ALLOWED_EFFECTS = {
+// 各场景候选的全部专属灯效配置表
+const SCENE_ALL_CANDIDATE_EFFECTS = {
   call: ['breathing', 'pulsing'],
   notification: ['breathing', 'pulsing'],
   charging: ['waterflow', 'streamer'],
   music: ['color_rhythm', 'four_color', 'breathing'],
   power: ['breathing', 'pulsing']
 };
+
+// 保持向下兼容别名
+const SCENE_ALLOWED_EFFECTS = SCENE_ALL_CANDIDATE_EFFECTS;
+
+/**
+ * 获取指定项目在各场景下启用的灯效列表 (白名单多选)
+ */
+function getProjectEnabledEffects(projectId) {
+  if (!state.projectEnabledEffects) state.projectEnabledEffects = {};
+  if (!state.projectEnabledEffects[projectId]) {
+    // 默认全选所有候选灯效
+    state.projectEnabledEffects[projectId] = JSON.parse(JSON.stringify(SCENE_ALL_CANDIDATE_EFFECTS));
+  }
+  return state.projectEnabledEffects[projectId];
+}
+
+/**
+ * 保存指定项目在各场景下启用的灯效列表
+ */
+function saveProjectEnabledEffects(projectId, enabledMap) {
+  if (!state.projectEnabledEffects) state.projectEnabledEffects = {};
+  state.projectEnabledEffects[projectId] = enabledMap;
+  try {
+    localStorage.setItem('ambient_light_project_enabled_effects', JSON.stringify(state.projectEnabledEffects));
+  } catch (e) {
+    console.warn('Failed to save project enabled effects', e);
+  }
+}
+
+/**
+ * 切换指定项目在指定模式下某个灯效的启用状态（多选配置）
+ * 选中的灯效才会在 APP 设置页中出现，没选中的不出现
+ */
+function toggleProjectSceneEffect(sceneId, effectName) {
+  const project = state.currentProject;
+  const enabledMap = getProjectEnabledEffects(project);
+  if (!enabledMap[sceneId]) {
+    enabledMap[sceneId] = [...(SCENE_ALL_CANDIDATE_EFFECTS[sceneId] || [])];
+  }
+
+  const list = enabledMap[sceneId];
+  const idx = list.indexOf(effectName);
+
+  if (idx >= 0) {
+    // 试图取消勾选
+    // 至少保留一项可用灯效，防止全部取消导致界面空白
+    if (list.length <= 1) {
+      const isZh = state.lang === 'zh-CN';
+      showUploadToast(isZh ? '每个模式请至少保留一种灯效' : 'Please keep at least one effect for each mode');
+      return;
+    }
+    list.splice(idx, 1);
+  } else {
+    // 勾选启用该灯效
+    list.push(effectName);
+    // 按候选默认顺序排列保持整洁
+    const order = SCENE_ALL_CANDIDATE_EFFECTS[sceneId] || [];
+    list.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  }
+
+  saveProjectEnabledEffects(project, enabledMap);
+
+  // 1. 如果当前场景正在生效的灯效被取消了，自动切换到剩余选中的第一个灯效
+  const curEffect = state.scenes[sceneId]?.effect;
+  if (!list.includes(curEffect)) {
+    const nextEffect = list[0];
+    selectSceneEffect(sceneId, nextEffect);
+  }
+
+  // 2. 联动更新手机 APP 设置页里各场景胶囊按钮的显隐（选中的出现，没选中的不出现）
+  updateAllSceneCapsulesVisibility();
+
+  // 3. 重新渲染弹窗列表
+  renderProjectEffectsModal();
+}
+
+/**
+ * 刷新手机 APP 设置页内所有场景的灯效胶囊显隐
+ * 严格遵从：用户选中的灯效才会在 APP 设置页出现，没选中的不出现
+ */
+function updateAllSceneCapsulesVisibility() {
+  const project = state.currentProject;
+  const enabledMap = getProjectEnabledEffects(project);
+  const scenes = ['call', 'notification', 'charging', 'music', 'power'];
+  const dict = I18N_LOCALES[state.lang] || I18N_LOCALES['zh-CN'];
+
+  scenes.forEach(sceneId => {
+    const track = document.getElementById(`capsulesTrack_${sceneId}`);
+    if (!track) return;
+
+    const allowed = enabledMap[sceneId] || SCENE_ALL_CANDIDATE_EFFECTS[sceneId] || [];
+    const buttons = track.querySelectorAll('.capsule-btn');
+
+    buttons.forEach(btn => {
+      const eff = btn.getAttribute('data-effect');
+      const isAllowed = allowed.includes(eff);
+      // 选中的才在 app 设置页里面出现，没选中的不出现！
+      btn.style.display = isAllowed ? '' : 'none';
+    });
+
+    // 检查当前场景生效的灯效是否在 allowed 中
+    let curEffect = state.scenes[sceneId]?.effect;
+    if (!allowed.includes(curEffect) && allowed.length > 0) {
+      curEffect = allowed[0];
+      state.scenes[sceneId].effect = curEffect;
+      applySceneEffectToMockup(sceneId, curEffect);
+    }
+
+    // 保持高亮态与提示文字一致
+    buttons.forEach(btn => {
+      const isCur = btn.getAttribute('data-effect') === curEffect;
+      btn.classList.toggle('active', isCur);
+    });
+
+    const hint = document.getElementById(`effectHint_${sceneId}`);
+    if (hint && curEffect) {
+      hint.textContent = dict[`effect_${curEffect}`] || curEffect;
+    }
+  });
+}
 
 /**
  * 选择各场景的灯效（严格遵循各场景支持的灯效列表，并按项目独立保存与确认）
@@ -841,7 +968,8 @@ function selectSceneEffect(sceneId, effectName, fromModal = false) {
   const scData = state.scenes[sceneId];
   if (!scData || !scData.enabled) return;
 
-  const allowed = SCENE_ALLOWED_EFFECTS[sceneId];
+  const enabledMap = getProjectEnabledEffects(state.currentProject);
+  const allowed = enabledMap[sceneId] || SCENE_ALL_CANDIDATE_EFFECTS[sceneId];
   if (allowed && !allowed.includes(effectName)) {
     return;
   }
@@ -1434,6 +1562,7 @@ function updateLanguageDisplay() {
 
   updateStatusChips();
   renderProjectOptions();
+  updateAllSceneCapsulesVisibility();
   if (isProjectEffectsModalOpen()) {
     renderProjectEffectsModal();
   }
@@ -2156,6 +2285,7 @@ function refreshAllScenesUI() {
 
   updateStatusChips();
   renderProjectOptions();
+  updateAllSceneCapsulesVisibility();
   if (isProjectEffectsModalOpen()) {
     renderProjectEffectsModal();
   }
@@ -2188,7 +2318,7 @@ function toggleProjectEffectsModal(forceState) {
 }
 
 /**
- * 渲染项目模式灯效确认弹窗列表
+ * 渲染项目模式灯效确认弹窗列表 (多选配置：选中的灯效才会在 APP 设置页出现，没选中的不出现)
  */
 function renderProjectEffectsModal() {
   const tag = document.getElementById('effectsModalProjectTag');
@@ -2206,12 +2336,21 @@ function renderProjectEffectsModal() {
     { id: 'power', icon: '⏻', name: dict.scene_power || '开关机' }
   ];
 
+  const enabledMap = getProjectEnabledEffects(state.currentProject);
   container.innerHTML = '';
 
   modes.forEach(m => {
-    const scData = state.scenes[m.id] || {};
-    const curEffect = scData.effect || (SCENE_ALLOWED_EFFECTS[m.id] ? SCENE_ALLOWED_EFFECTS[m.id][0] : 'breathing');
-    const curEffectName = dict[`effect_${curEffect}`] || curEffect;
+    const selectedList = enabledMap[m.id] || SCENE_ALL_CANDIDATE_EFFECTS[m.id] || [];
+    const allCandidates = SCENE_ALL_CANDIDATE_EFFECTS[m.id] || ['breathing', 'pulsing'];
+
+    // 标签文字：全部启用或已选项详情
+    let tagText = '';
+    if (selectedList.length === allCandidates.length) {
+      tagText = dict.effects_all_enabled || (state.lang === 'zh-CN' ? '全部启用' : 'All Enabled');
+    } else {
+      const selectedNames = selectedList.map(eff => dict[`effect_${eff}`] || eff).join('、');
+      tagText = selectedNames || (dict.effects_selected_count ? dict.effects_selected_count.replace('{n}', selectedList.length) : `已选 ${selectedList.length} 项`);
+    }
 
     const card = document.createElement('div');
     card.className = 'effect-mode-card';
@@ -2223,23 +2362,23 @@ function renderProjectEffectsModal() {
         <span>${m.icon}</span>
         <span>${m.name}</span>
       </div>
-      <span class="effect-mode-current-tag">${curEffectName}</span>
+      <span class="effect-mode-current-tag">${tagText}</span>
     `;
     card.appendChild(header);
 
     const chipsGroup = document.createElement('div');
     chipsGroup.className = 'mode-chips-group';
 
-    const allowed = SCENE_ALLOWED_EFFECTS[m.id] || ['breathing', 'pulsing'];
-    allowed.forEach(eff => {
-      const isCur = eff === curEffect;
+    allCandidates.forEach(eff => {
+      const isSelected = selectedList.includes(eff);
       const effName = dict[`effect_${eff}`] || eff;
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'mode-chip-btn' + (isCur ? ' active' : '');
-      btn.innerHTML = `${isCur ? '✓ ' : ''}${effName}`;
+      btn.className = 'mode-chip-btn' + (isSelected ? ' active' : '');
+      btn.innerHTML = `${isSelected ? '✓ ' : ''}${effName}`;
+      btn.title = isSelected ? (state.lang === 'zh-CN' ? '点击在 APP 设置页中隐藏该灯效' : 'Click to hide in APP settings') : (state.lang === 'zh-CN' ? '点击在 APP 设置页中显示该灯效' : 'Click to show in APP settings');
       btn.onclick = () => {
-        selectSceneEffect(m.id, eff, true);
+        toggleProjectSceneEffect(m.id, eff);
       };
       chipsGroup.appendChild(btn);
     });
@@ -2255,7 +2394,7 @@ function renderProjectEffectsModal() {
 function confirmAndCloseProjectEffectsModal() {
   toggleProjectEffectsModal(false);
   const isZh = state.lang === 'zh-CN';
-  showUploadToast(isZh ? `已确认并保存 [${state.currentProject}] 各模式灯效方案` : `Confirmed and saved mode effects for [${state.currentProject}]`);
+  showUploadToast(isZh ? `已确认并保存 [${state.currentProject}] 模式灯效配置` : `Confirmed and saved mode effects for [${state.currentProject}]`);
 }
 
 /**
@@ -2307,6 +2446,12 @@ function initProjectSystem() {
     if (savedProjectScenes) {
       state.projectScenes = JSON.parse(savedProjectScenes) || {};
     }
+
+    // 读取多项目专属已启用的模式灯效配置 (白名单多选)
+    const savedEnabled = localStorage.getItem('ambient_light_project_enabled_effects');
+    if (savedEnabled) {
+      state.projectEnabledEffects = JSON.parse(savedEnabled) || {};
+    }
   } catch (e) {
     console.warn('Error reading project storage', e);
   }
@@ -2320,6 +2465,7 @@ function initProjectSystem() {
   updateAllMockupImages();
   setupMockupClickCalibration();
   refreshAllScenesUI();
+  updateAllSceneCapsulesVisibility();
 }
 
 /**
@@ -2398,8 +2544,9 @@ function switchProject(projectId) {
   applyProjectLightConfig(projectId);
   updateAllMockupImages();
 
-  // 5. 全面刷新所有场景模式的 UI 胶囊选中态、右上角提示文本、Mockup 动效
+  // 5. 全面刷新所有场景模式的 UI 胶囊选中态、右上角提示文本、Mockup 动效与胶囊显隐
   refreshAllScenesUI();
+  updateAllSceneCapsulesVisibility();
 
   // 6. 如果模式灯效弹窗已展开，实时刷新弹窗
   if (isProjectEffectsModalOpen()) {

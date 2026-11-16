@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>通知氛围灯效果设置 - 多语言交互原型 (DYNAMIC SOUND)</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=20261116_v2">
 </head>
 <body>
   <!-- 桌面端悬浮控制工具栏 (语言切换 + 项目筛选与示意图更换) -->
@@ -28,9 +28,14 @@
       <label for="desktopProjectSelect" data-i18n="project_label">项目 / Project:</label>
       <select id="desktopProjectSelect" onchange="handleProjectDropdownChange(this.value)">
         <option value="GQ5023" selected>GQ5023</option>
+        <option value="3137">3137</option>
         <option value="__upload__">📁 更换示意图...</option>
         <option value="__new_project__">➕ 新增项目型号...</option>
       </select>
+      <button type="button" class="btn-adjust-light" id="btnToggleLightAdjust" onclick="toggleLightAdjustPanel()" title="调整灯位与尺寸">
+        <span>🎯</span>
+        <span class="btn-adjust-text" data-i18n="adjust_light_btn">调整灯位</span>
+      </button>
       <button type="button" class="btn-reset-diagram" id="btnResetProjectDiagram" onclick="resetCurrentProjectDiagram()" title="恢复默认示意图" style="display: none;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -38,6 +43,62 @@
         </svg>
       </button>
       <input type="file" id="projectDiagramUploader" accept="image/*" style="display: none;" onchange="handleProjectDiagramUpload(event)">
+    </div>
+
+    <!-- 灯位与尺寸配置调节面板 (可折叠) -->
+    <div class="light-adjust-panel" id="lightAdjustPanel" style="display: none;">
+      <div class="adjust-panel-header">
+        <div class="adjust-panel-title">
+          <span>🎯</span>
+          <span data-i18n="adjust_panel_title">灯位与尺寸配置</span>
+          <span class="adjust-panel-project-tag" id="adjustCurrentProjectTag">GQ5023</span>
+        </div>
+        <button type="button" class="btn-close-adjust" onclick="toggleLightAdjustPanel(false)">✕</button>
+      </div>
+      <div class="adjust-panel-tip" data-i18n="click_mockup_tip">
+        💡 提示：上传新示意图已自动识别；也可直接点击下方示意图精确定位！
+      </div>
+      <div class="adjust-controls">
+        <div class="adjust-row">
+          <div class="adjust-label-line">
+            <span data-i18n="light_pos_x">水平位置 X:</span>
+            <span class="adjust-val" id="valLightX">67.2%</span>
+          </div>
+          <input type="range" id="sliderLightX" min="0" max="100" step="0.2" value="67.2" oninput="handleLightParamChange()">
+        </div>
+        <div class="adjust-row">
+          <div class="adjust-label-line">
+            <span data-i18n="light_pos_y">垂直位置 Y:</span>
+            <span class="adjust-val" id="valLightY">45.2%</span>
+          </div>
+          <input type="range" id="sliderLightY" min="0" max="100" step="0.2" value="45.2" oninput="handleLightParamChange()">
+        </div>
+        <div class="adjust-row">
+          <div class="adjust-label-line">
+            <span data-i18n="light_size">灯圈尺寸:</span>
+            <span class="adjust-val" id="valLightSize">20.6%</span>
+          </div>
+          <input type="range" id="sliderLightSize" min="4" max="60" step="0.2" value="20.6" oninput="handleLightParamChange()">
+        </div>
+        <div class="adjust-row">
+          <div class="adjust-label-line">
+            <span data-i18n="schematic_scale">示意图缩放:</span>
+            <span class="adjust-val" id="valLightScale">100%</span>
+          </div>
+          <input type="range" id="sliderLightScale" min="0.5" max="2.5" step="0.05" value="1.0" oninput="handleLightParamChange()">
+        </div>
+      </div>
+      <div class="adjust-actions">
+        <button type="button" class="btn-adjust-action" onclick="autoDetectLightRegionForCurrent()">
+          <span>🤖</span> <span data-i18n="auto_detect_btn">智能识别</span>
+        </button>
+        <button type="button" class="btn-adjust-action" onclick="resetCurrentProjectLightConfig()">
+          <span>↺</span> <span data-i18n="reset_light_btn">恢复默认</span>
+        </button>
+        <button type="button" class="btn-adjust-action primary" onclick="toggleLightAdjustPanel(false)">
+          <span data-i18n="save_done">✓ 完成</span>
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -991,6 +1052,6 @@
     </div>
   </main>
 
-  <script src="./app.js"></script>
+  <script src="./app.js?v=20261116_v2"></script>
 </body>
 </html>

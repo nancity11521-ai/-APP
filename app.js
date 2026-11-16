@@ -56,6 +56,16 @@ const I18N_LOCALES = {
     time_start: '开始',
     time_end: '结束',
     project_label: '项目',
+    adjust_light_btn: '调整灯位',
+    adjust_panel_title: '灯位与尺寸配置',
+    light_pos_x: '水平位置 X:',
+    light_pos_y: '垂直位置 Y:',
+    light_size: '灯圈尺寸:',
+    schematic_scale: '示意图缩放:',
+    auto_detect_btn: '智能识别',
+    reset_light_btn: '恢复默认',
+    save_done: '✓ 完成',
+    click_mockup_tip: '💡 提示：上传新示意图已自动识别；也可直接点击下方示意图精确定位！',
   },
   'en-US': {
     page_home: 'Dynamic Pulse',
@@ -109,6 +119,16 @@ const I18N_LOCALES = {
     time_start: 'Start',
     time_end: 'End',
     project_label: 'Project',
+    adjust_light_btn: 'Adjust Light',
+    adjust_panel_title: 'Light Ring Setup',
+    light_pos_x: 'Horizontal X:',
+    light_pos_y: 'Vertical Y:',
+    light_size: 'Ring Size:',
+    schematic_scale: 'Scale:',
+    auto_detect_btn: 'Auto Detect',
+    reset_light_btn: 'Reset',
+    save_done: '✓ Done',
+    click_mockup_tip: '💡 Tip: Auto-detected on upload; or click schematic to place ring directly!',
   },
   'de-DE': {
     page_home: 'Farbpulsieren',
@@ -162,6 +182,16 @@ const I18N_LOCALES = {
     time_start: 'Start',
     time_end: 'Ende',
     project_label: 'Projekt',
+    adjust_light_btn: 'Licht anpassen',
+    adjust_panel_title: 'Lichtring & Größe',
+    light_pos_x: 'Horizontale X:',
+    light_pos_y: 'Vertikale Y:',
+    light_size: 'Ringgröße:',
+    schematic_scale: 'Skalierung:',
+    auto_detect_btn: 'Auto-Erkennung',
+    reset_light_btn: 'Zurücksetzen',
+    save_done: '✓ Fertig',
+    click_mockup_tip: '💡 Tipp: Automatisch erkannt; oder Schema anklicken!',
   },
   'es-ES': {
     page_home: 'Pulso dinámico',
@@ -215,6 +245,16 @@ const I18N_LOCALES = {
     time_start: 'Inicio',
     time_end: 'Fin',
     project_label: 'Proyecto',
+    adjust_light_btn: 'Ajustar luz',
+    adjust_panel_title: 'Configuración de luz',
+    light_pos_x: 'Posición X:',
+    light_pos_y: 'Posición Y:',
+    light_size: 'Tamaño del aro:',
+    schematic_scale: 'Escala:',
+    auto_detect_btn: 'Detección auto',
+    reset_light_btn: 'Restablecer',
+    save_done: '✓ Listo',
+    click_mockup_tip: '💡 Consejo: Detectado al subir; ¡o haz clic en el esquema!',
   },
   'ru-RU': {
     page_home: 'Динамический пульс',
@@ -268,6 +308,16 @@ const I18N_LOCALES = {
     time_start: 'Начало',
     time_end: 'Конец',
     project_label: 'Проект',
+    adjust_light_btn: 'Настройка кольца',
+    adjust_panel_title: 'Позиция и размер подсветки',
+    light_pos_x: 'Позиция X:',
+    light_pos_y: 'Позиция Y:',
+    light_size: 'Размер кольца:',
+    schematic_scale: 'Масштаб:',
+    auto_detect_btn: 'Автоопределение',
+    reset_light_btn: 'Сбросить',
+    save_done: '✓ Готово',
+    click_mockup_tip: '💡 Совет: Нажмите на схему для точного позиционирования!',
   },
   'fr-FR': {
     page_home: 'Pulsation dynamique',
@@ -321,6 +371,16 @@ const I18N_LOCALES = {
     time_start: 'Début',
     time_end: 'Fin',
     project_label: 'Projet',
+    adjust_light_btn: 'Ajuster lumière',
+    adjust_panel_title: 'Configuration anneau lumineux',
+    light_pos_x: 'Position X :',
+    light_pos_y: 'Position Y :',
+    light_size: 'Taille anneau :',
+    schematic_scale: 'Échelle :',
+    auto_detect_btn: 'Détection auto',
+    reset_light_btn: 'Réinitialiser',
+    save_done: '✓ Valider',
+    click_mockup_tip: '💡 Astuce : Cliquez sur le schéma pour positionner l’anneau !',
   },
   'ja-JP': {
     page_home: 'ダイナミックパルス',
@@ -374,6 +434,32 @@ const I18N_LOCALES = {
     time_start: '開始',
     time_end: '終了',
     project_label: 'プロジェクト',
+    adjust_light_btn: 'ライト位置調整',
+    adjust_panel_title: 'ライト位置・サイズ設定',
+    light_pos_x: '水平位置 X:',
+    light_pos_y: '垂直位置 Y:',
+    light_size: 'ライトサイズ:',
+    schematic_scale: '縮尺比率:',
+    auto_detect_btn: '自動検出',
+    reset_light_btn: '初期化',
+    save_done: '✓ 完了',
+    click_mockup_tip: '💡 ヒント: 図をタップして位置を素早く合わせられます！',
+  }
+};
+
+// 默认机型灯位与尺寸配置表 (支持多项目独立配置、自动识别与持久化)
+const DEFAULT_PROJECT_LIGHT_CONFIGS = {
+  'GQ5023': {
+    left: '67.19%',
+    top: '45.23%',
+    width: '20.63%',
+    scale: 1.0
+  },
+  '3137': {
+    left: '44.55%',
+    top: '38.14%',
+    width: '13.60%',
+    scale: 1.6
   }
 };
 
@@ -382,7 +468,9 @@ const state = {
   lang: 'zh-CN',
   currentPage: 'home',
   currentProject: 'GQ5023',
-  projects: ['GQ5023'],
+  projects: ['GQ5023', '3137'],
+  projectLightConfigs: {},
+  isCalibratingLight: false,
   customDiagrams: {},
   globalBrightness: 80,
   activeStyle: 'blue',
@@ -1487,8 +1575,308 @@ function toggleAllApps(checked) {
 }
 
 // ==========================================================================
-// 项目筛选与示意图管理系统
+// 项目筛选与示意图管理系统（含发光区域智能识别与可视化微调）
 // ==========================================================================
+
+/**
+ * 获取指定项目的发光灯位与缩放配置
+ */
+function getProjectLightConfig(projectId) {
+  if (state.projectLightConfigs && state.projectLightConfigs[projectId]) {
+    return { ...state.projectLightConfigs[projectId] };
+  }
+  if (DEFAULT_PROJECT_LIGHT_CONFIGS[projectId]) {
+    return { ...DEFAULT_PROJECT_LIGHT_CONFIGS[projectId] };
+  }
+  return {
+    left: '50.0%',
+    top: '50.0%',
+    width: '20.0%',
+    scale: 1.0
+  };
+}
+
+/**
+ * 保存指定项目的发光灯位与缩放配置
+ */
+function saveProjectLightConfig(projectId, config) {
+  if (!state.projectLightConfigs) state.projectLightConfigs = {};
+  state.projectLightConfigs[projectId] = { ...config };
+  try {
+    localStorage.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
+  } catch (e) {
+    console.warn('Failed to save project light config', e);
+  }
+}
+
+/**
+ * 将发光区域配置应用到所有场景的发光环与示意图缩放
+ */
+function applyProjectLightConfig(projectId) {
+  const config = getProjectLightConfig(projectId);
+  const root = document.documentElement;
+
+  root.style.setProperty('--emitter-left', config.left);
+  root.style.setProperty('--emitter-top', config.top);
+  root.style.setProperty('--emitter-size', config.width);
+  const scaleVal = config.scale !== undefined ? config.scale : 1.0;
+  root.style.setProperty('--schematic-scale', scaleVal);
+
+  const scenes = ['home', 'call', 'notification', 'charging', 'music', 'power'];
+  scenes.forEach(s => {
+    const emitter = document.getElementById(`haloEmitter_${s}`);
+    if (emitter) {
+      emitter.style.left = config.left;
+      emitter.style.top = config.top;
+      emitter.style.width = config.width;
+    }
+    const mockup = document.getElementById(`mockup_${s}`);
+    if (mockup) {
+      mockup.style.transform = `scale(${scaleVal})`;
+    }
+  });
+
+  syncSlidersWithConfig(config);
+}
+
+/**
+ * 同步微调控制面板滑块数值与显示标签
+ */
+function syncSlidersWithConfig(config) {
+  const tag = document.getElementById('adjustCurrentProjectTag');
+  if (tag) tag.textContent = state.currentProject;
+
+  const numX = parseFloat(config.left) || 50;
+  const numY = parseFloat(config.top) || 50;
+  const numSize = parseFloat(config.width) || 20;
+  const numScale = config.scale !== undefined ? parseFloat(config.scale) : 1.0;
+
+  const sliderX = document.getElementById('sliderLightX');
+  const sliderY = document.getElementById('sliderLightY');
+  const sliderSize = document.getElementById('sliderLightSize');
+  const sliderScale = document.getElementById('sliderLightScale');
+
+  const valX = document.getElementById('valLightX');
+  const valY = document.getElementById('valLightY');
+  const valSize = document.getElementById('valLightSize');
+  const valScale = document.getElementById('valLightScale');
+
+  if (sliderX) sliderX.value = numX;
+  if (sliderY) sliderY.value = numY;
+  if (sliderSize) sliderSize.value = numSize;
+  if (sliderScale) sliderScale.value = numScale;
+
+  if (valX) valX.textContent = `${numX.toFixed(1)}%`;
+  if (valY) valY.textContent = `${numY.toFixed(1)}%`;
+  if (valSize) valSize.textContent = `${numSize.toFixed(1)}%`;
+  if (valScale) valScale.textContent = `${Math.round(numScale * 100)}%`;
+}
+
+/**
+ * 展开/收起发光区域与尺寸可视化微调面板
+ */
+function toggleLightAdjustPanel(forceState) {
+  const panel = document.getElementById('lightAdjustPanel');
+  const btn = document.getElementById('btnToggleLightAdjust');
+  if (!panel) return;
+
+  const isVisible = forceState !== undefined ? forceState : panel.style.display === 'none';
+  panel.style.display = isVisible ? 'flex' : 'none';
+  if (btn) btn.classList.toggle('active', isVisible);
+  state.isCalibratingLight = isVisible;
+
+  document.querySelectorAll('.device-mockup-new').forEach(mockup => {
+    mockup.classList.toggle('calibrating-active', isVisible);
+  });
+
+  if (isVisible) {
+    applyProjectLightConfig(state.currentProject);
+  }
+}
+
+/**
+ * 响应滑块拖动调整发光参数
+ */
+function handleLightParamChange() {
+  const sliderX = document.getElementById('sliderLightX');
+  const sliderY = document.getElementById('sliderLightY');
+  const sliderSize = document.getElementById('sliderLightSize');
+  const sliderScale = document.getElementById('sliderLightScale');
+
+  const numX = parseFloat(sliderX?.value || 50);
+  const numY = parseFloat(sliderY?.value || 50);
+  const numSize = parseFloat(sliderSize?.value || 20);
+  const numScale = parseFloat(sliderScale?.value || 1.0);
+
+  const config = {
+    left: `${numX.toFixed(1)}%`,
+    top: `${numY.toFixed(1)}%`,
+    width: `${numSize.toFixed(1)}%`,
+    scale: numScale
+  };
+
+  saveProjectLightConfig(state.currentProject, config);
+  applyProjectLightConfig(state.currentProject);
+}
+
+/**
+ * 重置当前项目的发光参数为默认预置值
+ */
+function resetCurrentProjectLightConfig() {
+  if (DEFAULT_PROJECT_LIGHT_CONFIGS[state.currentProject]) {
+    saveProjectLightConfig(state.currentProject, { ...DEFAULT_PROJECT_LIGHT_CONFIGS[state.currentProject] });
+  } else {
+    saveProjectLightConfig(state.currentProject, {
+      left: '50.0%',
+      top: '50.0%',
+      width: '20.0%',
+      scale: 1.0
+    });
+  }
+  applyProjectLightConfig(state.currentProject);
+  showUploadToast((state.lang === 'zh-CN' ? '已恢复 ' : 'Reset config for ') + state.currentProject + (state.lang === 'zh-CN' ? ' 默认灯位' : ' default light position'));
+}
+
+/**
+ * 自动识别图片中的彩色发光环中心坐标及外径
+ * 基于 Canvas 色度方差扫描与聚类算法
+ */
+function autoDetectLightRingFromImage(imgElement) {
+  try {
+    const canvas = document.createElement('canvas');
+    const w = imgElement.naturalWidth || imgElement.width;
+    const h = imgElement.naturalHeight || imgElement.height;
+    if (!w || !h) return null;
+
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgElement, 0, 0);
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    const coloredPts = [];
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = (y * w + x) * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const a = data[idx + 3];
+
+        if (a > 40) {
+          const maxVal = Math.max(r, g, b);
+          const minVal = Math.min(r, g, b);
+          const diff = maxVal - minVal;
+          // 手机线稿为中性灰黑白，灯环为高饱和彩色像素
+          if (diff >= 18) {
+            coloredPts.push({ x, y, diff });
+          }
+        }
+      }
+    }
+
+    if (coloredPts.length < 8) {
+      return null;
+    }
+
+    // 聚类提取中心，剔除边缘离散噪点
+    let sumX = 0, sumY = 0;
+    coloredPts.forEach(pt => {
+      sumX += pt.x;
+      sumY += pt.y;
+    });
+    const avgX = sumX / coloredPts.length;
+    const avgY = sumY / coloredPts.length;
+
+    let totalDist = 0;
+    coloredPts.forEach(pt => {
+      totalDist += Math.hypot(pt.x - avgX, pt.y - avgY);
+    });
+    const avgDist = totalDist / coloredPts.length;
+    const inliers = coloredPts.filter(pt => Math.hypot(pt.x - avgX, pt.y - avgY) <= avgDist * 2.2);
+
+    if (inliers.length < 6) return null;
+
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    inliers.forEach(pt => {
+      if (pt.x < minX) minX = pt.x;
+      if (pt.x > maxX) maxX = pt.x;
+      if (pt.y < minY) minY = pt.y;
+      if (pt.y > maxY) maxY = pt.y;
+    });
+
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    const diameter = Math.max(maxX - minX + 1, maxY - minY + 1);
+
+    const leftPct = ((cx / w) * 100).toFixed(2) + '%';
+    const topPct = ((cy / h) * 100).toFixed(2) + '%';
+    const widthPct = ((diameter / w) * 100).toFixed(2) + '%';
+
+    return {
+      left: leftPct,
+      top: topPct,
+      width: widthPct
+    };
+  } catch (err) {
+    console.warn('Auto detect failed:', err);
+    return null;
+  }
+}
+
+/**
+ * 触发对当前示意图进行重新智能识别
+ */
+function autoDetectLightRegionForCurrent() {
+  const currentSrc = getProjectMockupSrc(state.currentPage, false);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    const detected = autoDetectLightRingFromImage(img);
+    if (detected) {
+      const curConf = getProjectLightConfig(state.currentProject);
+      curConf.left = detected.left;
+      curConf.top = detected.top;
+      curConf.width = detected.width;
+      saveProjectLightConfig(state.currentProject, curConf);
+      applyProjectLightConfig(state.currentProject);
+      showUploadToast((state.lang === 'zh-CN' ? '✨ 智能检测成功: ' : '✨ Auto-detected: ') + `${detected.left}, ${detected.top}`);
+    } else {
+      showUploadToast(state.lang === 'zh-CN' ? '未能从图中提取到发光圈，可手动点击示意图设定' : 'Could not detect ring. Click on schematic to place');
+    }
+  };
+  img.src = currentSrc;
+}
+
+/**
+ * 绑定示意图点击直接拾取发光中心点交互
+ */
+function setupMockupClickCalibration() {
+  const scenes = ['home', 'call', 'notification', 'charging', 'music', 'power'];
+  scenes.forEach(s => {
+    const mockup = document.getElementById(`mockup_${s}`);
+    if (mockup) {
+      mockup.addEventListener('click', function(e) {
+        if (!state.isCalibratingLight) return;
+        const rect = mockup.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        const leftPct = Math.max(0, Math.min(100, (clickX / rect.width) * 100)).toFixed(1) + '%';
+        const topPct = Math.max(0, Math.min(100, (clickY / rect.height) * 100)).toFixed(1) + '%';
+
+        const curConf = getProjectLightConfig(state.currentProject);
+        curConf.left = leftPct;
+        curConf.top = topPct;
+        saveProjectLightConfig(state.currentProject, curConf);
+        applyProjectLightConfig(state.currentProject);
+
+        showUploadToast((state.lang === 'zh-CN' ? '已定焦灯位中心: ' : 'Light centered: ') + `${leftPct}, ${topPct}`);
+      });
+    }
+  });
+}
 
 /**
  * 初始化项目筛选器与示意图缓存
@@ -1499,12 +1887,18 @@ function initProjectSystem() {
     if (savedProjects) {
       const parsed = JSON.parse(savedProjects);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        state.projects = parsed;
+        // 保证预设项目 GQ5023 和 3137 均包含在内
+        const merged = Array.from(new Set(['GQ5023', '3137', ...parsed]));
+        state.projects = merged;
       }
     }
     const savedCustom = localStorage.getItem('ambient_light_custom_diagrams');
     if (savedCustom) {
       state.customDiagrams = JSON.parse(savedCustom) || {};
+    }
+    const savedConfigs = localStorage.getItem('ambient_light_project_configs');
+    if (savedConfigs) {
+      state.projectLightConfigs = JSON.parse(savedConfigs) || {};
     }
     const savedCurrent = localStorage.getItem('ambient_light_current_project');
     if (savedCurrent && state.projects.includes(savedCurrent)) {
@@ -1516,7 +1910,9 @@ function initProjectSystem() {
 
   renderProjectOptions();
   updateResetDiagramButtonVisibility();
+  applyProjectLightConfig(state.currentProject);
   updateAllMockupImages();
+  setupMockupClickCalibration();
 }
 
 /**
@@ -1582,7 +1978,9 @@ function switchProject(projectId) {
   } catch (e) {}
   const select = document.getElementById('desktopProjectSelect');
   if (select) select.value = projectId;
+
   updateResetDiagramButtonVisibility();
+  applyProjectLightConfig(projectId);
   updateAllMockupImages();
 }
 
@@ -1604,7 +2002,7 @@ function addNewProject(projectName) {
 }
 
 /**
- * 处理用户上传自定义示意图
+ * 处理用户上传自定义示意图并自动识别发光灯位与尺寸
  */
 function handleProjectDiagramUpload(event) {
   const file = event.target.files && event.target.files[0];
@@ -1619,16 +2017,37 @@ function handleProjectDiagramUpload(event) {
     } catch (err) {
       console.warn('localStorage quota exceeded for custom diagram', err);
     }
-    updateResetDiagramButtonVisibility();
-    updateAllMockupImages();
-    showUploadToast((state.lang === 'zh-CN' ? '已更新 ' : 'Updated diagram for ') + state.currentProject);
+
+    // 载入新上传图片并自动识别发光区域
+    const tempImg = new Image();
+    tempImg.onload = function() {
+      const detected = autoDetectLightRingFromImage(tempImg);
+      const curConf = getProjectLightConfig(state.currentProject);
+      if (detected) {
+        curConf.left = detected.left;
+        curConf.top = detected.top;
+        curConf.width = detected.width;
+        curConf.scale = 1.0;
+        saveProjectLightConfig(state.currentProject, curConf);
+        applyProjectLightConfig(state.currentProject);
+        showUploadToast((state.lang === 'zh-CN' ? '已自动识别灯位: ' : 'Auto-detected light: ') + `${detected.left}, ${detected.top}`);
+      } else {
+        curConf.scale = 1.0;
+        saveProjectLightConfig(state.currentProject, curConf);
+        applyProjectLightConfig(state.currentProject);
+        showUploadToast(state.lang === 'zh-CN' ? '已更新示意图，可点击【🎯 调整灯位】快速对齐' : 'Diagram updated. Click Adjust Light to calibrate');
+      }
+      updateResetDiagramButtonVisibility();
+      updateAllMockupImages();
+    };
+    tempImg.src = dataUrl;
   };
   reader.readAsDataURL(file);
   event.target.value = '';
 }
 
 /**
- * 恢复当前项目的默认示意图
+ * 恢复当前项目的默认示意图及灯位
  */
 function resetCurrentProjectDiagram() {
   if (state.customDiagrams[state.currentProject]) {
@@ -1638,10 +2057,12 @@ function resetCurrentProjectDiagram() {
     } catch (e) {
       console.warn(e);
     }
-    updateResetDiagramButtonVisibility();
-    updateAllMockupImages();
-    showUploadToast((state.lang === 'zh-CN' ? '已恢复 ' : 'Reset diagram for ') + state.currentProject + (state.lang === 'zh-CN' ? ' 默认示意图' : ' default diagram'));
   }
+
+  resetCurrentProjectLightConfig();
+  updateResetDiagramButtonVisibility();
+  updateAllMockupImages();
+  showUploadToast((state.lang === 'zh-CN' ? '已恢复 ' : 'Reset diagram for ') + state.currentProject + (state.lang === 'zh-CN' ? ' 默认示意图与灯位' : ' default diagram & light'));
 }
 
 /**
@@ -1661,6 +2082,9 @@ function getProjectMockupSrc(sceneId, isOff) {
   const customImg = state.customDiagrams[state.currentProject];
   if (customImg) {
     return customImg;
+  }
+  if (state.currentProject === '3137') {
+    return './assets/device_3137.png';
   }
   return isOff ? './assets/device_clean_off.png' : './assets/device_clean.png';
 }
@@ -1702,5 +2126,5 @@ function showUploadToast(message) {
   clearTimeout(toast._timeout);
   toast._timeout = setTimeout(() => {
     toast.classList.remove('show');
-  }, 2200);
+  }, 2400);
 }

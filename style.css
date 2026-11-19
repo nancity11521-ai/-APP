@@ -2458,3 +2458,23 @@ input:checked + .toggle-slider:before {
     margin: 8px 12px;
   }
 }
+
+.widget-home-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+}
+
+.widget-home-heading h1 {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.widget-back-link {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: inherit;
+}

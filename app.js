@@ -72,6 +72,7 @@ const I18N_LOCALES = {
     schematic_scale: '示意图缩放:',
     auto_detect_btn: '智能识别',
     reset_light_btn: '恢复默认',
+    delete_project_btn: '删除项目',
     save_done: '✓ 完成',
     click_mockup_tip: '💡 提示：上传新示意图已自动识别；也可直接点击下方示意图精确定位！',
   },
@@ -143,6 +144,7 @@ const I18N_LOCALES = {
     schematic_scale: 'Scale:',
     auto_detect_btn: 'Auto Detect',
     reset_light_btn: 'Reset',
+    delete_project_btn: 'Delete Project',
     save_done: '✓ Done',
     click_mockup_tip: '💡 Tip: Auto-detected on upload; or click schematic to place ring directly!',
   },
@@ -211,6 +213,7 @@ const I18N_LOCALES = {
     schematic_scale: 'Skalierung:',
     auto_detect_btn: 'Auto-Erkennung',
     reset_light_btn: 'Zurücksetzen',
+    delete_project_btn: 'Projekt löschen',
     save_done: '✓ Fertig',
     click_mockup_tip: '💡 Tipp: Automatisch erkannt; oder Schema anklicken!',
   },
@@ -279,6 +282,7 @@ const I18N_LOCALES = {
     schematic_scale: 'Escala:',
     auto_detect_btn: 'Detección auto',
     reset_light_btn: 'Restablecer',
+    delete_project_btn: 'Eliminar proyecto',
     save_done: '✓ Listo',
     click_mockup_tip: '💡 Consejo: Detectado al subir; ¡o haz clic en el esquema!',
   },
@@ -347,6 +351,7 @@ const I18N_LOCALES = {
     schematic_scale: 'Масштаб:',
     auto_detect_btn: 'Автоопределение',
     reset_light_btn: 'Сбросить',
+    delete_project_btn: 'Удалить проект',
     save_done: '✓ Готово',
     click_mockup_tip: '💡 Совет: Нажмите на схему для точного позиционирования!',
   },
@@ -415,6 +420,7 @@ const I18N_LOCALES = {
     schematic_scale: 'Échelle :',
     auto_detect_btn: 'Détection auto',
     reset_light_btn: 'Réinitialiser',
+    delete_project_btn: 'Supprimer projet',
     save_done: '✓ Valider',
     click_mockup_tip: '💡 Astuce : Cliquez sur le schéma pour positionner l’anneau !',
   },
@@ -483,6 +489,7 @@ const I18N_LOCALES = {
     schematic_scale: '縮尺比率:',
     auto_detect_btn: '自動検出',
     reset_light_btn: '初期化',
+    delete_project_btn: 'プロジェクト削除',
     save_done: '✓ 完了',
     click_mockup_tip: '💡 ヒント: 図をタップして位置を素早く合わせられます！',
   }
@@ -576,7 +583,7 @@ const DEFAULT_PROJECT_SCENES = {
       color: '#00a838'
     }
   },
-  '3135': {
+  'GQ3135': {
     home: {
       enabled: true,
       partyEnabled: true,
@@ -619,7 +626,7 @@ const DEFAULT_PROJECT_SCENES = {
       color: '#00a838'
     }
   },
-  '3136': {
+  'GQ3136': {
     home: {
       enabled: true,
       partyEnabled: true,
@@ -663,6 +670,26 @@ const DEFAULT_PROJECT_SCENES = {
     }
   }
 };
+
+// 挂载别名方案，确保带 GQ 与不带 GQ 前缀均能 100% 匹配
+DEFAULT_PROJECT_SCENES['3135'] = DEFAULT_PROJECT_SCENES['GQ3135'];
+DEFAULT_PROJECT_SCENES['3136'] = DEFAULT_PROJECT_SCENES['GQ3136'];
+DEFAULT_PROJECT_SCENES['GQ3137'] = DEFAULT_PROJECT_SCENES['3137'];
+
+/**
+ * 规范化项目 ID，完美打通带 GQ 前缀与不带 GQ 前缀的机型名称
+ * 例如：GQ3135 <=> 3135, GQ3136 <=> 3136, 3137 <=> GQ3137, GQ5023 <=> 5023
+ */
+function normalizeProjectId(projectId) {
+  if (!projectId) return 'GQ5023';
+  const str = String(projectId).trim();
+  const upper = str.toUpperCase();
+  if (upper === 'GQ3135' || upper === '3135') return 'GQ3135';
+  if (upper === 'GQ3136' || upper === '3136') return 'GQ3136';
+  if (upper === 'GQ3137' || upper === '3137') return '3137';
+  if (upper === 'GQ5023' || upper === '5023') return 'GQ5023';
+  return str;
+}
 
 // 默认机型灯位与尺寸配置表 (支持多项目独立配置、自动识别与持久化)
 const DEFAULT_PROJECT_LIGHT_CONFIGS = {
@@ -680,14 +707,14 @@ const DEFAULT_PROJECT_LIGHT_CONFIGS = {
     scale: 1.0,
     ringWidth: 24
   },
-  '3135': {
+  'GQ3135': {
     left: '49.87%',
     top: '50.23%',
     width: '22.85%',
     scale: 1.0,
     ringWidth: 18
   },
-  '3136': {
+  'GQ3136': {
     left: '49.88%',
     top: '48.50%',
     width: '25.95%',
@@ -696,12 +723,17 @@ const DEFAULT_PROJECT_LIGHT_CONFIGS = {
   }
 };
 
+// 别名配置映射
+DEFAULT_PROJECT_LIGHT_CONFIGS['3135'] = DEFAULT_PROJECT_LIGHT_CONFIGS['GQ3135'];
+DEFAULT_PROJECT_LIGHT_CONFIGS['3136'] = DEFAULT_PROJECT_LIGHT_CONFIGS['GQ3136'];
+DEFAULT_PROJECT_LIGHT_CONFIGS['GQ3137'] = DEFAULT_PROJECT_LIGHT_CONFIGS['3137'];
+
 // 2. 全局应用与场景独立状态
 const state = {
   lang: 'zh-CN',
   currentPage: 'home',
   currentProject: 'GQ5023',
-  projects: ['GQ5023', '3137', '3135', '3136'],
+  projects: ['GQ5023', '3137', 'GQ3135', 'GQ3136'],
   projectLightConfigs: {},
   projectScenes: {},
   projectEnabledEffects: {},
@@ -961,11 +993,17 @@ const SCENE_ALLOWED_EFFECTS = SCENE_ALL_CANDIDATE_EFFECTS;
  */
 function getProjectEnabledEffects(projectId) {
   if (!state.projectEnabledEffects) state.projectEnabledEffects = {};
-  if (!state.projectEnabledEffects[projectId]) {
-    // 默认全选所有候选灯效
-    state.projectEnabledEffects[projectId] = JSON.parse(JSON.stringify(SCENE_ALL_CANDIDATE_EFFECTS));
+  const normId = normalizeProjectId(projectId);
+  if (state.projectEnabledEffects[normId]) {
+    return state.projectEnabledEffects[normId];
   }
-  return state.projectEnabledEffects[projectId];
+  if (state.projectEnabledEffects[projectId]) {
+    return state.projectEnabledEffects[projectId];
+  }
+  // 默认全选所有候选灯效
+  const defaults = JSON.parse(JSON.stringify(SCENE_ALL_CANDIDATE_EFFECTS));
+  state.projectEnabledEffects[normId] = defaults;
+  return defaults;
 }
 
 /**
@@ -973,7 +1011,9 @@ function getProjectEnabledEffects(projectId) {
  */
 function saveProjectEnabledEffects(projectId, enabledMap) {
   if (!state.projectEnabledEffects) state.projectEnabledEffects = {};
+  const normId = normalizeProjectId(projectId);
   state.projectEnabledEffects[projectId] = enabledMap;
+  state.projectEnabledEffects[normId] = enabledMap;
   try {
     localStorage.setItem('ambient_light_project_enabled_effects', JSON.stringify(state.projectEnabledEffects));
   } catch (e) {
@@ -1925,12 +1965,25 @@ function toggleAllApps(checked) {
  * 获取指定项目的发光灯位与缩放配置
  */
 function getProjectLightConfig(projectId) {
-  if (state.projectLightConfigs && state.projectLightConfigs[projectId]) {
-    const cfg = { ...state.projectLightConfigs[projectId] };
-    if (cfg.ringWidth === undefined) {
-      cfg.ringWidth = projectId === '3137' ? 24 : 28;
+  const normId = normalizeProjectId(projectId);
+  if (state.projectLightConfigs) {
+    if (state.projectLightConfigs[normId]) {
+      const cfg = { ...state.projectLightConfigs[normId] };
+      if (cfg.ringWidth === undefined) {
+        cfg.ringWidth = (normId === '3137') ? 24 : 28;
+      }
+      return cfg;
     }
-    return cfg;
+    if (state.projectLightConfigs[projectId]) {
+      const cfg = { ...state.projectLightConfigs[projectId] };
+      if (cfg.ringWidth === undefined) {
+        cfg.ringWidth = (projectId === '3137') ? 24 : 28;
+      }
+      return cfg;
+    }
+  }
+  if (DEFAULT_PROJECT_LIGHT_CONFIGS[normId]) {
+    return { ...DEFAULT_PROJECT_LIGHT_CONFIGS[normId] };
   }
   if (DEFAULT_PROJECT_LIGHT_CONFIGS[projectId]) {
     return { ...DEFAULT_PROJECT_LIGHT_CONFIGS[projectId] };
@@ -1949,7 +2002,9 @@ function getProjectLightConfig(projectId) {
  */
 function saveProjectLightConfig(projectId, config) {
   if (!state.projectLightConfigs) state.projectLightConfigs = {};
+  const normId = normalizeProjectId(projectId);
   state.projectLightConfigs[projectId] = { ...config };
+  state.projectLightConfigs[normId] = { ...config };
   try {
     localStorage.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
   } catch (e) {
@@ -2090,8 +2145,10 @@ function handleLightParamChange() {
  * 重置当前项目的发光参数为默认预置值
  */
 function resetCurrentProjectLightConfig() {
-  if (DEFAULT_PROJECT_LIGHT_CONFIGS[state.currentProject]) {
-    saveProjectLightConfig(state.currentProject, { ...DEFAULT_PROJECT_LIGHT_CONFIGS[state.currentProject] });
+  const normId = normalizeProjectId(state.currentProject);
+  const defConf = DEFAULT_PROJECT_LIGHT_CONFIGS[normId] || DEFAULT_PROJECT_LIGHT_CONFIGS[state.currentProject];
+  if (defConf) {
+    saveProjectLightConfig(state.currentProject, { ...defConf });
   } else {
     saveProjectLightConfig(state.currentProject, {
       left: '50.0%',
@@ -2334,15 +2391,17 @@ function ensureAllProjectsHaveScenes() {
   if (!state.projectScenes || typeof state.projectScenes !== 'object') {
     state.projectScenes = {};
   }
-  if (!state.projectScenes['GQ5023']) {
-    state.projectScenes['GQ5023'] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['GQ5023']));
-  }
-  if (!state.projectScenes['3137']) {
-    state.projectScenes['3137'] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['3137']));
-  }
+  ['GQ5023', '3137', 'GQ3135', 'GQ3136'].forEach(id => {
+    if (!state.projectScenes[id]) {
+      const defScenes = DEFAULT_PROJECT_SCENES[id] || DEFAULT_PROJECT_SCENES['GQ5023'];
+      state.projectScenes[id] = JSON.parse(JSON.stringify(defScenes));
+    }
+  });
   state.projects.forEach(p => {
     if (!state.projectScenes[p]) {
-      state.projectScenes[p] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['GQ5023']));
+      const norm = normalizeProjectId(p);
+      const defScenes = DEFAULT_PROJECT_SCENES[norm] || DEFAULT_PROJECT_SCENES[p] || DEFAULT_PROJECT_SCENES['GQ5023'];
+      state.projectScenes[p] = JSON.parse(JSON.stringify(defScenes));
     }
   });
 }
@@ -2352,7 +2411,9 @@ function ensureAllProjectsHaveScenes() {
  */
 function loadCurrentProjectScenes() {
   ensureAllProjectsHaveScenes();
-  const curData = state.projectScenes[state.currentProject];
+  const p = state.currentProject;
+  const norm = normalizeProjectId(p);
+  const curData = state.projectScenes[p] || state.projectScenes[norm];
   if (curData) {
     state.scenes = JSON.parse(JSON.stringify(curData));
   }
@@ -2363,7 +2424,11 @@ function loadCurrentProjectScenes() {
  */
 function saveCurrentProjectScenes() {
   if (!state.projectScenes) state.projectScenes = {};
-  state.projectScenes[state.currentProject] = JSON.parse(JSON.stringify(state.scenes));
+  const p = state.currentProject;
+  const norm = normalizeProjectId(p);
+  const cloned = JSON.parse(JSON.stringify(state.scenes));
+  state.projectScenes[p] = cloned;
+  state.projectScenes[norm] = cloned;
   try {
     localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
   } catch (e) {
@@ -2554,17 +2619,24 @@ function initProjectSystem() {
     if (savedProjects) {
       const parsed = JSON.parse(savedProjects);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // 保证预设项目 GQ5023、3137、3135、3136 均包含在内
-        const merged = Array.from(new Set(['GQ5023', '3137', '3135', '3136', ...parsed]));
+        // 自动将历史缓存中的 '3135' 规范化为 'GQ3135'，'3136' 规范化为 'GQ3136'
+        const standardized = parsed.map(item => {
+          if (item === '3135') return 'GQ3135';
+          if (item === '3136') return 'GQ3136';
+          return item;
+        });
+        const merged = Array.from(new Set(['GQ5023', '3137', 'GQ3135', 'GQ3136', ...standardized]));
         state.projects = merged;
       }
+    } else {
+      state.projects = ['GQ5023', '3137', 'GQ3135', 'GQ3136'];
     }
     const savedCustom = localStorage.getItem('ambient_light_custom_diagrams');
     if (savedCustom) {
       state.customDiagrams = JSON.parse(savedCustom) || {};
     }
-    // 3137、3135、3136 项目默认集成官方 2K 16:9 纯净超清矢量级底图，清理残留的老版本低清截屏缓存
-    ['3137', '3135', '3136'].forEach(pId => {
+    // 3137、GQ3135、GQ3136 项目默认集成官方 2K 16:9 纯净超清矢量级底图，清理残留的老版本低清截屏缓存
+    ['3137', 'GQ3135', '3135', 'GQ3136', '3136'].forEach(pId => {
       if (state.customDiagrams && state.customDiagrams[pId]) {
         delete state.customDiagrams[pId];
         try {
@@ -2587,8 +2659,13 @@ function initProjectSystem() {
       }
     }
     const savedCurrent = localStorage.getItem('ambient_light_current_project');
-    if (savedCurrent && state.projects.includes(savedCurrent)) {
-      state.currentProject = savedCurrent;
+    if (savedCurrent) {
+      const normCur = normalizeProjectId(savedCurrent);
+      if (state.projects.includes(normCur)) {
+        state.currentProject = normCur;
+      } else if (state.projects.includes(savedCurrent)) {
+        state.currentProject = savedCurrent;
+      }
     }
 
     // 读取多项目专属模式灯效方案
@@ -2663,6 +2740,12 @@ function renderProjectOptions() {
   optNew.textContent = isZh ? '➕ 新增项目型号...' : '➕ New Project...';
   select.appendChild(optNew);
 
+  const optDelete = document.createElement('option');
+  optDelete.value = '__delete_project__';
+  optDelete.textContent = isZh ? '🗑️ 删除当前项目...' : '🗑️ Delete Current Project...';
+  optDelete.style.color = '#ef4444';
+  select.appendChild(optDelete);
+
   select.value = currentVal;
 }
 
@@ -2686,7 +2769,70 @@ function handleProjectDropdownChange(val) {
     }
     return;
   }
+  if (val === '__delete_project__') {
+    if (select) select.value = state.currentProject;
+    deleteCurrentProject();
+    return;
+  }
   switchProject(val);
+}
+
+/**
+ * 删除当前选中的项目型号
+ */
+function deleteCurrentProject() {
+  const p = state.currentProject;
+  const isZh = state.lang === 'zh-CN';
+
+  // 1. 防呆保护：至少保留一个项目
+  if (!state.projects || state.projects.length <= 1) {
+    showUploadToast(isZh ? '至少保留一个项目，无法全部删除' : 'At least one project must remain');
+    return;
+  }
+
+  // 2. 确认删除弹窗
+  const confirmMsg = isZh
+    ? `确定要删除项目 [${p}] 吗？\n删除后该项目的示意图、灯位与模式配置将被清除。`
+    : `Are you sure you want to delete project [${p}]?\nIts schematic and light configurations will be removed.`;
+
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const norm = normalizeProjectId(p);
+  const targetIds = Array.from(new Set([p, norm]));
+
+  // 3. 从列表中移除项目（包含别名）
+  state.projects = state.projects.filter(item => !targetIds.includes(item));
+  if (state.projects.length === 0) {
+    state.projects = ['GQ5023'];
+  }
+
+  // 4. 清理该项目的相关缓存数据
+  targetIds.forEach(id => {
+    if (state.customDiagrams) delete state.customDiagrams[id];
+    if (state.projectLightConfigs) delete state.projectLightConfigs[id];
+    if (state.projectScenes) delete state.projectScenes[id];
+    if (state.projectEnabledEffects) delete state.projectEnabledEffects[id];
+  });
+
+  // 5. 保存到 localStorage
+  try {
+    localStorage.setItem('ambient_light_projects_list', JSON.stringify(state.projects));
+    localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+    localStorage.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
+    localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
+    localStorage.setItem('ambient_light_project_enabled_effects', JSON.stringify(state.projectEnabledEffects));
+  } catch (e) {
+    console.warn('Failed to update localStorage after deletion', e);
+  }
+
+  // 6. 自动切换到剩余项目列表的第一个项目
+  const nextProject = state.projects[0];
+  switchProject(nextProject);
+
+  // 7. 提示用户
+  showUploadToast((isZh ? '已删除项目 ' : 'Deleted project: ') + p);
 }
 
 /**
@@ -2739,7 +2885,9 @@ function addNewProject(projectName) {
     }
     // 为新项目初始化独立的模式灯效配置
     if (!state.projectScenes[projectName]) {
-      state.projectScenes[projectName] = JSON.parse(JSON.stringify(DEFAULT_PROJECT_SCENES['GQ5023']));
+      const norm = normalizeProjectId(projectName);
+      const defScenes = DEFAULT_PROJECT_SCENES[norm] || DEFAULT_PROJECT_SCENES[projectName] || DEFAULT_PROJECT_SCENES['GQ5023'];
+      state.projectScenes[projectName] = JSON.parse(JSON.stringify(defScenes));
       try {
         localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
       } catch (e) {}
@@ -2760,7 +2908,9 @@ function handleProjectDiagramUpload(event) {
   const reader = new FileReader();
   reader.onload = function(e) {
     const dataUrl = e.target.result;
+    const norm = normalizeProjectId(state.currentProject);
     state.customDiagrams[state.currentProject] = dataUrl;
+    state.customDiagrams[norm] = dataUrl;
     try {
       localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
     } catch (err) {
@@ -2780,6 +2930,7 @@ function handleProjectDiagramUpload(event) {
         // 如果检测到并清除了原图中的彩色指示圈，保存无双圈的干净底图
         if (detected.cleanedDataUrl) {
           state.customDiagrams[state.currentProject] = detected.cleanedDataUrl;
+          state.customDiagrams[norm] = detected.cleanedDataUrl;
           try {
             localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
           } catch (e) {}
@@ -2806,8 +2957,17 @@ function handleProjectDiagramUpload(event) {
  * 恢复当前项目的默认示意图及灯位
  */
 function resetCurrentProjectDiagram() {
+  const normId = normalizeProjectId(state.currentProject);
+  let changed = false;
   if (state.customDiagrams[state.currentProject]) {
     delete state.customDiagrams[state.currentProject];
+    changed = true;
+  }
+  if (state.customDiagrams[normId]) {
+    delete state.customDiagrams[normId];
+    changed = true;
+  }
+  if (changed) {
     try {
       localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
     } catch (e) {
@@ -2827,7 +2987,8 @@ function resetCurrentProjectDiagram() {
 function updateResetDiagramButtonVisibility() {
   const btn = document.getElementById('btnResetProjectDiagram');
   if (!btn) return;
-  const hasCustom = !!state.customDiagrams[state.currentProject];
+  const normId = normalizeProjectId(state.currentProject);
+  const hasCustom = !!(state.customDiagrams[state.currentProject] || state.customDiagrams[normId]);
   btn.style.display = hasCustom ? 'inline-flex' : 'none';
 }
 
@@ -2835,18 +2996,20 @@ function updateResetDiagramButtonVisibility() {
  * 获取指定场景和通断状态下的示意图路径
  */
 function getProjectMockupSrc(sceneId, isOff) {
-  const customImg = state.customDiagrams[state.currentProject];
+  const p = state.currentProject;
+  const norm = normalizeProjectId(p);
+  const customImg = state.customDiagrams[p] || state.customDiagrams[norm];
   if (customImg) {
     return customImg;
   }
-  if (state.currentProject === '3137') {
+  if (norm === '3137' || p === '3137' || p === 'GQ3137') {
     return './assets/device_3137.png';
   }
-  if (state.currentProject === '3135') {
-    return './assets/device_3135.png';
+  if (norm === 'GQ3135' || p === '3135' || p === 'GQ3135') {
+    return './assets/device_GQ3135.png';
   }
-  if (state.currentProject === '3136') {
-    return './assets/device_3136.png';
+  if (norm === 'GQ3136' || p === '3136' || p === 'GQ3136') {
+    return './assets/device_GQ3136.png';
   }
   return isOff ? './assets/device_clean_off.png' : './assets/device_clean.png';
 }

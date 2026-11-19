@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>通知氛围灯效果设置 - 多语言交互原型 (DYNAMIC SOUND)</title>
-  <link rel="stylesheet" href="./style.css?v=20261119_v1">
+  <link rel="stylesheet" href="./style.css?v=20261119_v2">
 </head>
 <body>
   <!-- 桌面端悬浮控制工具栏 (语言切换 + 项目筛选与示意图更换) -->
@@ -29,10 +29,11 @@
       <select id="desktopProjectSelect" onchange="handleProjectDropdownChange(this.value)">
         <option value="GQ5023" selected>GQ5023</option>
         <option value="3137">3137</option>
-        <option value="3135">3135</option>
-        <option value="3136">3136</option>
+        <option value="GQ3135">GQ3135</option>
+        <option value="GQ3136">GQ3136</option>
         <option value="__upload__">📁 更换示意图...</option>
         <option value="__new_project__">➕ 新增项目型号...</option>
+        <option value="__delete_project__" style="color: #ef4444;">🗑️ 删除当前项目...</option>
       </select>
       <button type="button" class="btn-adjust-light btn-project-effects" id="btnToggleProjectEffects" onclick="toggleProjectEffectsModal()" title="模式灯效选择与确认">
         <span>⚡</span>
@@ -41,6 +42,10 @@
       <button type="button" class="btn-adjust-light" id="btnToggleLightAdjust" onclick="toggleLightAdjustPanel()" title="调整灯位与尺寸">
         <span>🎯</span>
         <span class="btn-adjust-text" data-i18n="adjust_light_btn">调整灯位</span>
+      </button>
+      <button type="button" class="btn-adjust-light btn-delete-project" id="btnDeleteCurrentProject" onclick="deleteCurrentProject()" title="删除当前项目" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.28);">
+        <span>🗑️</span>
+        <span class="btn-adjust-text" data-i18n="delete_project_btn">删除项目</span>
       </button>
       <button type="button" class="btn-reset-diagram" id="btnResetProjectDiagram" onclick="resetCurrentProjectDiagram()" title="恢复默认示意图" style="display: none;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1157,6 +1162,6 @@
     </div>
   </main>
 
-  <script src="./app.js?v=20261119_v1"></script>
+  <script src="./app.js?v=20261119_v2"></script>
 </body>
 </html>

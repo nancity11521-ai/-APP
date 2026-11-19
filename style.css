@@ -156,6 +156,18 @@ body {
   box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
 }
 
+.btn-delete-project {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
+.btn-delete-project:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+}
+
 /* 项目各模式灯效选择与确认面板 */
 .project-effects-modal {
   background: rgba(255, 255, 255, 0.98);

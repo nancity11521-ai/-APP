@@ -18,6 +18,7 @@ const projectSync = (() => {
   let data = {};
   let editable = false;
   let initialized = false;
+  let migrateLocal = false;
   let pending = false;
   let saving = false;
   let timer;
@@ -47,14 +48,14 @@ const projectSync = (() => {
     try {
       const saved = await request('/snapshot', 'PUT', { data, revision });
       revision = saved.revision;
-      status('已保存到线上');
+      status(pending ? '还有改动待保存…' : '已保存到线上');
       if (pending) timer = setTimeout(save, 0);
     } catch (error) {
       pending = true;
       if (error.status === 409) {
         status('其他设备已保存新版本，本次更改未覆盖线上');
       } else {
-        status(error.status === 401 ? '登录已过期，当前改动未同步' : '保存失败，当前改动未同步');
+        status(error.status ? error.message + '，当前改动未同步' : '连接失败，当前改动未同步');
         retry.hidden = false;
       }
     } finally {
@@ -75,10 +76,13 @@ const projectSync = (() => {
       const snapshot = await request('/snapshot');
       revision = snapshot.revision;
       data = snapshot.data;
-      if (!revision) {
+      if (Object.keys(data).length === 0) {
         for (const key of keys) {
           const previous = localStorage.getItem(key);
-          if (previous !== null) data[key] = previous;
+          if (previous !== null) {
+            data[key] = previous;
+            migrateLocal = true;
+          }
         }
       }
       editable = true;
@@ -147,9 +151,10 @@ const projectSync = (() => {
 
   return {
     ready,
+    saveNow: save,
     start() {
       initialized = true;
-      if (editable && !revision && keys.some(key => localStorage.getItem(key) !== null)) queueSave();
+      if (editable && migrateLocal) queueSave();
       if (!editable) {
         for (const option of document.querySelectorAll('#desktopProjectSelect option')) {
           if (option.value.startsWith('__')) option.disabled = true;

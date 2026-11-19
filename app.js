@@ -2901,57 +2901,70 @@ function addNewProject(projectName) {
 /**
  * 处理用户上传自定义示意图并自动识别发光灯位与尺寸
  */
-function handleProjectDiagramUpload(event) {
-  const file = event.target.files && event.target.files[0];
+const diagramUploads = new Map();
+
+function encodeProjectDiagram(image) {
+  const canvas = document.createElement('canvas');
+  let scale = Math.min(1, 1920 / Math.max(image.width, image.height));
+  for (let attempt = 0; attempt < 5; attempt++) {
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/webp', 0.9);
+    if (dataUrl.length <= 850_000 && dataUrl !== 'data:,') return dataUrl;
+    scale *= 0.75;
+  }
+  throw new Error('示意图过大');
+}
+
+function decodeProjectDiagram(src) {
+  const image = new Image();
+  image.src = src;
+  return image.decode().then(() => image);
+}
+
+async function handleProjectDiagramUpload(event) {
+  const file = event.target.files?.[0];
   if (!file) return;
-
-  const project = state.currentProject;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    const norm = normalizeProjectId(project);
-    state.customDiagrams[project] = dataUrl;
-    state.customDiagrams[norm] = dataUrl;
-    try {
-      projectSync.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
-    } catch (err) {
-      console.warn('localStorage quota exceeded for custom diagram', err);
-    }
-
-    // 载入新上传图片并自动识别发光区域
-    const tempImg = new Image();
-    tempImg.onload = function() {
-      const detected = autoDetectLightRingFromImage(tempImg);
-      const curConf = getProjectLightConfig(project);
-      if (detected) {
-        curConf.left = detected.left;
-        curConf.top = detected.top;
-        curConf.width = detected.width;
-        curConf.scale = 1.0;
-        // 如果检测到并清除了原图中的彩色指示圈，保存无双圈的干净底图
-        if (detected.cleanedDataUrl) {
-          state.customDiagrams[project] = detected.cleanedDataUrl;
-          state.customDiagrams[norm] = detected.cleanedDataUrl;
-          try {
-            projectSync.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
-          } catch (e) {}
-        }
-        saveProjectLightConfig(project, curConf);
-        applyProjectLightConfig(state.currentProject);
-        showUploadToast((state.lang === 'zh-CN' ? '已自动识别灯位并消减双圈: ' : 'Auto-detected light (single ring): ') + `${detected.left}, ${detected.top}`);
-      } else {
-        curConf.scale = 1.0;
-        saveProjectLightConfig(project, curConf);
-        applyProjectLightConfig(state.currentProject);
-        showUploadToast(state.lang === 'zh-CN' ? '已更新示意图，可点击【🎯 调整灯位】快速对齐' : 'Diagram updated. Click Adjust Light to calibrate');
-      }
-      updateResetDiagramButtonVisibility();
-      updateAllMockupImages();
-    };
-    tempImg.src = dataUrl;
-  };
-  reader.readAsDataURL(file);
   event.target.value = '';
+
+  const project = normalizeProjectId(state.currentProject);
+  const upload = Symbol();
+  diagramUploads.set(project, upload);
+  const src = URL.createObjectURL(file);
+  try {
+    const image = await decodeProjectDiagram(src);
+    const detected = autoDetectLightRingFromImage(image);
+    const finalImage = detected?.cleanedDataUrl ? await decodeProjectDiagram(detected.cleanedDataUrl) : image;
+    const dataUrl = encodeProjectDiagram(finalImage);
+    if (diagramUploads.get(project) !== upload) return;
+
+    for (const key of Object.keys(state.customDiagrams)) {
+      if (key !== project && normalizeProjectId(key) === project) delete state.customDiagrams[key];
+    }
+    state.customDiagrams[project] = dataUrl;
+    projectSync.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+    const config = { ...getProjectLightConfig(project), scale: 1.0 };
+    if (detected) {
+      config.left = detected.left;
+      config.top = detected.top;
+      config.width = detected.width;
+    }
+    saveProjectLightConfig(project, config);
+    applyProjectLightConfig(state.currentProject);
+    updateResetDiagramButtonVisibility();
+    updateAllMockupImages();
+    showUploadToast(state.lang === 'zh-CN' ? '示意图已更新，正在同步到线上' : 'Diagram updated. Syncing online.');
+    projectSync.saveNow();
+  } catch (error) {
+    if (diagramUploads.get(project) === upload) {
+      showUploadToast(state.lang === 'zh-CN' ? '无法处理示意图，请选择有效图片' : 'Could not process this image.');
+      console.warn('Could not process diagram', error);
+    }
+  } finally {
+    URL.revokeObjectURL(src);
+    if (diagramUploads.get(project) === upload) diagramUploads.delete(project);
+  }
 }
 
 /**

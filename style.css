@@ -2424,3 +2424,37 @@ input:checked + .toggle-slider:before {
   font-weight: 500;
 }
 
+
+.desktop-widget-entry {
+  position: fixed;
+  z-index: 10;
+  top: 38px;
+  left: clamp(16px, 2.25vw, 38px);
+  padding: 10px 16px;
+  border: 1px solid #11182716;
+  border-radius: 20px;
+  background: #fff;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 18px #0000000f;
+}
+
+.desktop-widget-entry:hover,
+.desktop-widget-entry:focus-visible {
+  color: #0065cb;
+  border-color: #86baf0;
+}
+
+@media (max-width: 720px) {
+  body:has(> .desktop-widget-entry) {
+    flex-direction: column;
+  }
+
+  .desktop-widget-entry {
+    position: static;
+    align-self: flex-start;
+    margin: 8px 12px;
+  }
+}

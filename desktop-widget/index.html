@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>氛围灯小部件</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: radial-gradient(ellipse at 90% 110%, #1455bd, transparent 63%), linear-gradient(143deg, #091831 29%, #173b78 29%, #0b2353 63%, #124fae 63%, #081a3b); color: white; font: 16px system-ui, sans-serif; }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+  .desktop { position: relative; width: min(100vw, 43.9024dvh); aspect-ratio: 720 / 1640; overflow: hidden; background: url("./桌面背景.png") center / 100% 100% no-repeat; }
+  .widget-slot { position: absolute; left: 0; top: 7.3%; width: 47.2%; height: 22.4%; background: linear-gradient(145deg, #d8e4e2, #e7eeea); }
+  .widget { position: absolute; left: 3.75%; top: 7.93%; width: 43.5%; height: 19.3%; }
+  .widget-label { position: absolute; top: 100%; inset-inline: 0; margin: 0; padding-top: .45dvh; text-align: center; font-size: 1.38dvh; font-weight: 600; line-height: 1.35; text-shadow: 0 1px 3px #0009; pointer-events: none; }
+  .art { position: absolute; display: block; width: 560%; max-width: none; pointer-events: none; }
+  .settings-hit { position: absolute; inset: 0; border-radius: 19px; background: rgb(139 178 229 / var(--glass, .23)); border: 1px solid rgb(195 220 255 / calc(var(--glass, .23) * 1.3)); backdrop-filter: blur(var(--glass-blur, 12px)); }
+  .settings-hit:active { filter: brightness(1.15); }
+  .power, .off-disc, .lit-disc { position: absolute; left: 50%; top: 50%; width: 70%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 0; padding: 0; border-radius: 50%; background: transparent; }
+  .power:active { box-shadow: inset 0 0 0 100vmax #0002; }
+  .off-disc, .lit-disc { pointer-events: none; overflow: hidden; }
+  .off-disc .art { width: 383%; left: -227.2%; top: -59.3%; }
+  .lit-disc { box-shadow: 0 0 12px #42ff5280; }
+  .lit-disc .art { width: 373%; left: -51.9%; top: -56.5%; }
+  .desktop[data-on="false"] .lit-disc { visibility: hidden; }
+  .desktop { user-select: none; -webkit-touch-callout: none; }
+  .desktop button { touch-action: manipulation; }
+  .desktop:has(.widget-menu:not([hidden]))::after {
+    content: ""; position: absolute; inset: 5.5% 0 0; z-index: 1;
+    background: #20252438; backdrop-filter: blur(12px);
+  }
+  .widget-menu {
+    position: absolute; z-index: 2; left: 18%; top: 26%; width: 60%;
+    display: grid; overflow: hidden; border-radius: 13px;
+    background: linear-gradient(115deg, #fffffff5, #e2e4e7da 65%);
+    color: #37332e; box-shadow: 0 2px 6px #0003;
+  }
+  .widget-menu button {
+    display: flex; align-items: center; gap: 13px; min-height: 5.6dvh;
+    padding: 0 9%; border: 0; text-align: left; color: inherit; background: transparent;
+    font-size: clamp(12px, 1.85dvh, 19px);
+  }
+  .widget-menu button + button { border-top: 1px solid #0001; }
+  .widget-menu button:hover { background: #fff5; }
+  .widget-menu button:focus-visible { outline: 2px solid #525d6f; outline-offset: -3px; }
+  .menu-icon { width: 1.2em; text-align: center; font-size: 1.35em; }
+  .restore { border: 0; color: white; padding: 10px 14px; border-radius: 8px; }
+  .restore:hover { background: #253956; }
+  .restore { position: absolute; top: 18.75%; left: 25%; transform: translate(-50%, -50%); border: 1px solid #ffffff38; background: #162944; }
+  [hidden] { display: none !important; }
+  .opacity-control { display: grid; grid-template-columns: 1fr auto; }
+  .opacity-control input { grid-column: 1 / -1; width: 100%; margin: 4px 0; }
+  dialog { width: min(92vw, 410px); padding: 24px; color: white; border: 1px solid #ffffff38; border-radius: 24px; background: #142951; box-shadow: 0 20px 80px #0006; }
+  #editor { position: fixed; inset: auto 16px 16px auto; margin: 0; }
+  dialog::backdrop { background: #07102394; backdrop-filter: blur(8px); }
+  header, label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  h1 { margin: 0; font-size: 22px; }
+  header button { border: 0; border-radius: 12px; padding: 8px 12px; background: #ffffff18; color: inherit; }
+  label { margin-top: 24px; padding: 16px 0 4px; border-top: 1px solid #ffffff28; cursor: pointer; }
+  input { width: 21px; height: 21px; accent-color: #44e957; cursor: pointer; }
+</style>
+</head>
+<body>
+<main class="desktop" data-on="true" aria-label="桌面小部件预览">
+  <div class="widget-slot" aria-hidden="true"></div>
+  <div class="widget">
+    <button class="settings-hit" type="button" aria-label="打开氛围灯设置" aria-haspopup="dialog"></button>
+    <div class="off-disc" aria-hidden="true"><img class="art" src="./小部件设计.png" alt="" draggable="false"></div>
+    <div class="lit-disc" aria-hidden="true"><img class="art" src="./小部件设计.png" alt="" draggable="false"></div>
+    <button class="power" type="button" aria-label="氛围灯" aria-pressed="true"></button>
+    <p class="widget-label">幻彩脉动</p>
+  </div>
+  <div class="widget-menu" role="group" aria-label="小部件操作" hidden>
+    <button class="edit" type="button"><span class="menu-icon" aria-hidden="true">✎</span>编辑</button>
+    <button class="remove" type="button"><span class="menu-icon" aria-hidden="true">×</span>移除</button>
+  </div>
+  <button class="restore" type="button" hidden>添加氛围灯小部件</button>
+</main>
+<dialog aria-labelledby="settings-title">
+  <header>
+    <h1 id="settings-title">氛围灯设置</h1>
+    <form method="dialog"><button type="submit">返回桌面</button></form>
+  </header>
+  <label>氛围灯 <input id="setting-power" type="checkbox" checked></label>
+</dialog>
+<dialog id="editor" aria-labelledby="editor-title">
+  <header>
+    <h1 id="editor-title">编辑小部件</h1>
+    <form method="dialog"><button type="submit">完成</button></form>
+  </header>
+  <label class="opacity-control" for="opacity">
+    背景不透明度 <output for="opacity">23%</output>
+    <input id="opacity" type="range" min="0" max="100" value="23">
+  </label>
+</dialog>
+<script>
+  const desktop = document.querySelector('.desktop');
+  const power = document.querySelector('.power');
+  const settings = document.querySelector('dialog');
+  const widget = document.querySelector('.widget');
+  const menu = document.querySelector('.widget-menu');
+  const edit = document.querySelector('.edit');
+  const restore = document.querySelector('.restore');
+  const editor = document.querySelector('#editor');
+  const opacity = document.querySelector('#opacity');
+  const opacityValue = editor.querySelector('output');
+  let press = null;
+  let suppressClick = false;
+
+  function cancelPress() {
+    if (!press) return;
+    clearTimeout(press.timer);
+    press = null;
+  }
+
+  function showMenu() {
+    cancelPress();
+    menu.hidden = false;
+    edit.focus();
+  }
+
+  widget.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    suppressClick = false;
+    press = {
+      x: event.clientX, y: event.clientY,
+      timer: setTimeout(() => {
+        suppressClick = true;
+        showMenu();
+      }, 500)
+    };
+  });
+  window.addEventListener('pointermove', event => {
+    if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > 10) cancelPress();
+  });
+  for (const event of ['pointerup', 'pointercancel', 'blur']) window.addEventListener(event, cancelPress);
+  widget.addEventListener('click', event => {
+    if (!suppressClick) return;
+    suppressClick = false;
+    event.stopImmediatePropagation();
+  }, true);
+  widget.addEventListener('contextmenu', event => {
+    event.preventDefault();
+    showMenu();
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!menu.contains(event.target)) menu.hidden = true;
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    if (editor.open) editor.close();
+    if (menu.hidden) return;
+    menu.hidden = true;
+    power.focus();
+  });
+  edit.addEventListener('click', () => {
+    menu.hidden = true;
+    editor.show();
+    opacity.focus();
+  });
+  editor.addEventListener('close', () => power.focus());
+  opacity.addEventListener('input', () => {
+    const alpha = opacity.valueAsNumber / 100;
+    desktop.style.setProperty('--glass', alpha);
+    desktop.style.setProperty('--glass-blur', `${alpha * 52}px`);
+    opacityValue.value = `${opacity.value}%`;
+  });
+  document.querySelector('.remove').addEventListener('click', () => {
+    menu.hidden = true;
+    widget.hidden = true;
+    restore.hidden = false;
+    restore.focus();
+  });
+  restore.addEventListener('click', () => {
+    restore.hidden = true;
+    widget.hidden = false;
+    power.focus();
+  });
+
+  const settingPower = document.querySelector('#setting-power');
+
+  function setPower(on) {
+    desktop.dataset.on = String(on);
+    power.setAttribute('aria-pressed', String(on));
+    settingPower.checked = on;
+  }
+
+  power.addEventListener('click', () => setPower(desktop.dataset.on !== 'true'));
+  document.querySelector('.settings-hit').addEventListener('click', () => settings.showModal());
+  settingPower.addEventListener('change', () => setPower(settingPower.checked));
+</script>
+</body>
+</html>

@@ -2635,15 +2635,13 @@ function initProjectSystem() {
     if (savedCustom) {
       state.customDiagrams = JSON.parse(savedCustom) || {};
     }
-    // 3137、GQ3135、GQ3136 项目默认集成官方 2K 16:9 纯净超清矢量级底图，清理残留的老版本低清截屏缓存
-    ['3137', 'GQ3135', '3135', 'GQ3136', '3136'].forEach(pId => {
-      if (state.customDiagrams && state.customDiagrams[pId]) {
-        delete state.customDiagrams[pId];
-        try {
-          localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
-        } catch (e) {}
+    // Preserve uploads from older browsers that stored diagrams under legacy model IDs.
+    for (const id of ['3135', '3136']) {
+      const canonicalId = normalizeProjectId(id);
+      if (state.customDiagrams[id] && !state.customDiagrams[canonicalId]) {
+        state.customDiagrams[canonicalId] = state.customDiagrams[id];
       }
-    });
+    }
     const savedConfigs = localStorage.getItem('ambient_light_project_configs');
     if (savedConfigs) {
       state.projectLightConfigs = JSON.parse(savedConfigs) || {};
@@ -2905,11 +2903,12 @@ function handleProjectDiagramUpload(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
+  const project = state.currentProject;
   const reader = new FileReader();
   reader.onload = function(e) {
     const dataUrl = e.target.result;
-    const norm = normalizeProjectId(state.currentProject);
-    state.customDiagrams[state.currentProject] = dataUrl;
+    const norm = normalizeProjectId(project);
+    state.customDiagrams[project] = dataUrl;
     state.customDiagrams[norm] = dataUrl;
     try {
       localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
@@ -2921,7 +2920,7 @@ function handleProjectDiagramUpload(event) {
     const tempImg = new Image();
     tempImg.onload = function() {
       const detected = autoDetectLightRingFromImage(tempImg);
-      const curConf = getProjectLightConfig(state.currentProject);
+      const curConf = getProjectLightConfig(project);
       if (detected) {
         curConf.left = detected.left;
         curConf.top = detected.top;
@@ -2929,18 +2928,18 @@ function handleProjectDiagramUpload(event) {
         curConf.scale = 1.0;
         // 如果检测到并清除了原图中的彩色指示圈，保存无双圈的干净底图
         if (detected.cleanedDataUrl) {
-          state.customDiagrams[state.currentProject] = detected.cleanedDataUrl;
+          state.customDiagrams[project] = detected.cleanedDataUrl;
           state.customDiagrams[norm] = detected.cleanedDataUrl;
           try {
             localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
           } catch (e) {}
         }
-        saveProjectLightConfig(state.currentProject, curConf);
+        saveProjectLightConfig(project, curConf);
         applyProjectLightConfig(state.currentProject);
         showUploadToast((state.lang === 'zh-CN' ? '已自动识别灯位并消减双圈: ' : 'Auto-detected light (single ring): ') + `${detected.left}, ${detected.top}`);
       } else {
         curConf.scale = 1.0;
-        saveProjectLightConfig(state.currentProject, curConf);
+        saveProjectLightConfig(project, curConf);
         applyProjectLightConfig(state.currentProject);
         showUploadToast(state.lang === 'zh-CN' ? '已更新示意图，可点击【🎯 调整灯位】快速对齐' : 'Diagram updated. Click Adjust Light to calibrate');
       }

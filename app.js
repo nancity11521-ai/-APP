@@ -839,6 +839,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 绑定所有胶囊滚动容器的双向羽化渐隐监听
   initAllScrollersOverflow();
+  setActiveTimeMode(state.schedule.mode);
   projectSync.start();
 });
 
@@ -1581,6 +1582,7 @@ function setBrightnessGear(val) {
   updateSliderTrackLine(num);
   applyHaloBrightness(num);
   updateStatusChips();
+  saveCurrentProjectScenes();
 }
 
 function setGlobalBrightness(val) {
@@ -1816,6 +1818,7 @@ function setActiveTimeMode(mode) {
   }
 
   updateActiveTimeSummary();
+  saveCurrentProjectScenes();
 }
 
 /**
@@ -1847,6 +1850,7 @@ function updateScheduledTime(type, val) {
     if (txt) txt.textContent = val;
   }
   updateActiveTimeSummary();
+  saveCurrentProjectScenes();
 }
 
 /**
@@ -1888,6 +1892,7 @@ function selectChargingDuration(durKey) {
     statusElem.textContent = dict[`charging_duration_${durKey}`] || durKey;
   }
   toggleDurationSheet(false);
+  saveCurrentProjectScenes();
 }
 
 /**
@@ -1946,6 +1951,7 @@ function toggleAppItem(type, appId, checked) {
   state.effectiveApps[type].all = allChecked;
   const allSw = document.getElementById('switch_apps_select_all');
   if (allSw) allSw.checked = allChecked;
+  saveCurrentProjectScenes();
 }
 
 function toggleAllApps(checked) {
@@ -1957,6 +1963,7 @@ function toggleAllApps(checked) {
     const sw = document.getElementById(`switch_app_${a.id}`);
     if (sw) sw.checked = checked;
   });
+  saveCurrentProjectScenes();
 }
 
 // ==========================================================================
@@ -2431,6 +2438,11 @@ function saveCurrentProjectScenes() {
   const cloned = JSON.parse(JSON.stringify(state.scenes));
   state.projectScenes[p] = cloned;
   state.projectScenes[norm] = cloned;
+  state.projectScenes.__global_preferences__ = {
+    brightness: state.globalBrightness,
+    schedule: state.schedule,
+    effectiveApps: state.effectiveApps
+  };
   try {
     projectSync.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
   } catch (e) {
@@ -2672,6 +2684,18 @@ function initProjectSystem() {
     const savedProjectScenes = projectSync.getItem('ambient_light_project_scenes');
     if (savedProjectScenes) {
       state.projectScenes = JSON.parse(savedProjectScenes) || {};
+      const preferences = state.projectScenes.__global_preferences__;
+      if (preferences) {
+        if (Number.isFinite(preferences.brightness)) state.globalBrightness = preferences.brightness;
+        if (preferences.effectiveApps) state.effectiveApps = preferences.effectiveApps;
+        if (preferences.schedule) {
+          state.schedule = { ...state.schedule, ...preferences.schedule };
+          for (const type of ['start', 'end']) {
+            document.getElementById(`input_${type}_time`).value = state.schedule[`${type}Time`];
+            document.getElementById(`text_${type}_time`).textContent = state.schedule[`${type}Time`];
+          }
+        }
+      }
     }
 
     // 读取多项目专属已启用的模式灯效配置 (白名单多选)

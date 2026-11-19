@@ -46,8 +46,18 @@ const projectSync = (() => {
     retry.hidden = true;
     status('正在保存…');
     try {
-      const saved = await request('/snapshot', 'PUT', { data, revision });
+      const submitted = { ...data };
+      const saved = await request('/snapshot', 'PUT', { data: submitted, revision });
       revision = saved.revision;
+      const verified = await request('/snapshot');
+      if (verified.revision !== revision) {
+        const error = new Error('线上版本已更新');
+        error.status = 409;
+        throw error;
+      }
+      if (keys.some(key => verified.data[key] !== submitted[key])) {
+        throw new Error('线上回读内容不一致');
+      }
       status(pending ? '还有改动待保存…' : '已保存到线上');
       if (pending) timer = setTimeout(save, 0);
     } catch (error) {

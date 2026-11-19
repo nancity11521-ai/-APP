@@ -64,7 +64,7 @@
 <main class="desktop" data-on="true" aria-label="桌面小部件预览">
   <div class="widget-slot" aria-hidden="true"></div>
   <div class="widget">
-    <button class="settings-hit" type="button" aria-label="打开氛围灯设置" aria-haspopup="dialog"></button>
+    <button class="settings-hit" type="button" aria-label="打开幻彩脉动设置"></button>
     <div class="off-disc" aria-hidden="true"><img class="art" src="./小部件设计.png" alt="" draggable="false"></div>
     <div class="lit-disc" aria-hidden="true"><img class="art" src="./小部件设计.png" alt="" draggable="false"></div>
     <button class="power" type="button" aria-label="氛围灯" aria-pressed="true"></button>
@@ -76,13 +76,6 @@
   </div>
   <button class="restore" type="button" hidden>添加氛围灯小部件</button>
 </main>
-<dialog aria-labelledby="settings-title">
-  <header>
-    <h1 id="settings-title">氛围灯设置</h1>
-    <form method="dialog"><button type="submit">返回桌面</button></form>
-  </header>
-  <label>氛围灯 <input id="setting-power" type="checkbox" checked></label>
-</dialog>
 <dialog id="editor" aria-labelledby="editor-title">
   <header>
     <h1 id="editor-title">编辑小部件</h1>
@@ -96,7 +89,6 @@
 <script>
   const desktop = document.querySelector('.desktop');
   const power = document.querySelector('.power');
-  const settings = document.querySelector('dialog');
   const widget = document.querySelector('.widget');
   const menu = document.querySelector('.widget-menu');
   const edit = document.querySelector('.edit');
@@ -177,17 +169,16 @@
     power.focus();
   });
 
-  const settingPower = document.querySelector('#setting-power');
 
   function setPower(on) {
     desktop.dataset.on = String(on);
     power.setAttribute('aria-pressed', String(on));
-    settingPower.checked = on;
+    sessionStorage.setItem('huancai_widget_power', String(on));
   }
 
   power.addEventListener('click', () => setPower(desktop.dataset.on !== 'true'));
-  document.querySelector('.settings-hit').addEventListener('click', () => settings.showModal());
-  settingPower.addEventListener('change', () => setPower(settingPower.checked));
+  document.querySelector('.settings-hit').addEventListener('click', () => window.location.assign('../'));
+  setPower(sessionStorage.getItem('huancai_widget_power') !== 'false');
 </script>
 </body>
 </html>

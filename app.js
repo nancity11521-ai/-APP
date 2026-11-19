@@ -575,6 +575,92 @@ const DEFAULT_PROJECT_SCENES = {
       effect: 'pulsing',
       color: '#00a838'
     }
+  },
+  '3135': {
+    home: {
+      enabled: true,
+      partyEnabled: true,
+      effect: 'color_rhythm',
+      color: '#00a838'
+    },
+    call: {
+      enabled: true,
+      effect: 'breathing',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      inCallBreathe: true,
+      inCallColor: '#00e600',
+      inCallColorKey: 'color_grass_green'
+    },
+    notification: {
+      enabled: true,
+      effect: 'pulsing',
+      color: '#00e600',
+      colorKey: 'color_grass_green'
+    },
+    charging: {
+      enabled: true,
+      effect: 'waterflow',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      duration: '15s',
+      batteryAdaptive: true
+    },
+    music: {
+      enabled: true,
+      effect: 'color_rhythm',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      fourColorPalette: 3
+    },
+    power: {
+      enabled: true,
+      effect: 'pulsing',
+      color: '#00a838'
+    }
+  },
+  '3136': {
+    home: {
+      enabled: true,
+      partyEnabled: true,
+      effect: 'color_rhythm',
+      color: '#00a838'
+    },
+    call: {
+      enabled: true,
+      effect: 'breathing',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      inCallBreathe: true,
+      inCallColor: '#00e600',
+      inCallColorKey: 'color_grass_green'
+    },
+    notification: {
+      enabled: true,
+      effect: 'pulsing',
+      color: '#00e600',
+      colorKey: 'color_grass_green'
+    },
+    charging: {
+      enabled: true,
+      effect: 'waterflow',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      duration: '15s',
+      batteryAdaptive: true
+    },
+    music: {
+      enabled: true,
+      effect: 'color_rhythm',
+      color: '#00e600',
+      colorKey: 'color_grass_green',
+      fourColorPalette: 3
+    },
+    power: {
+      enabled: true,
+      effect: 'pulsing',
+      color: '#00a838'
+    }
   }
 };
 
@@ -593,6 +679,20 @@ const DEFAULT_PROJECT_LIGHT_CONFIGS = {
     width: '6.71%',
     scale: 1.0,
     ringWidth: 24
+  },
+  '3135': {
+    left: '49.87%',
+    top: '50.23%',
+    width: '22.85%',
+    scale: 1.0,
+    ringWidth: 18
+  },
+  '3136': {
+    left: '49.88%',
+    top: '48.50%',
+    width: '25.95%',
+    scale: 1.0,
+    ringWidth: 10
   }
 };
 
@@ -601,7 +701,7 @@ const state = {
   lang: 'zh-CN',
   currentPage: 'home',
   currentProject: 'GQ5023',
-  projects: ['GQ5023', '3137'],
+  projects: ['GQ5023', '3137', '3135', '3136'],
   projectLightConfigs: {},
   projectScenes: {},
   projectEnabledEffects: {},
@@ -2454,8 +2554,8 @@ function initProjectSystem() {
     if (savedProjects) {
       const parsed = JSON.parse(savedProjects);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // 保证预设项目 GQ5023 和 3137 均包含在内
-        const merged = Array.from(new Set(['GQ5023', '3137', ...parsed]));
+        // 保证预设项目 GQ5023、3137、3135、3136 均包含在内
+        const merged = Array.from(new Set(['GQ5023', '3137', '3135', '3136', ...parsed]));
         state.projects = merged;
       }
     }
@@ -2463,13 +2563,15 @@ function initProjectSystem() {
     if (savedCustom) {
       state.customDiagrams = JSON.parse(savedCustom) || {};
     }
-    // 3137 项目默认集成官方 2K 16:9 纯净超清矢量级底图，清理残留的老版本低清截屏缓存
-    if (state.customDiagrams && state.customDiagrams['3137']) {
-      delete state.customDiagrams['3137'];
-      try {
-        localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
-      } catch (e) {}
-    }
+    // 3137、3135、3136 项目默认集成官方 2K 16:9 纯净超清矢量级底图，清理残留的老版本低清截屏缓存
+    ['3137', '3135', '3136'].forEach(pId => {
+      if (state.customDiagrams && state.customDiagrams[pId]) {
+        delete state.customDiagrams[pId];
+        try {
+          localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+        } catch (e) {}
+      }
+    });
     const savedConfigs = localStorage.getItem('ambient_light_project_configs');
     if (savedConfigs) {
       state.projectLightConfigs = JSON.parse(savedConfigs) || {};
@@ -2739,6 +2841,12 @@ function getProjectMockupSrc(sceneId, isOff) {
   }
   if (state.currentProject === '3137') {
     return './assets/device_3137.png';
+  }
+  if (state.currentProject === '3135') {
+    return './assets/device_3135.png';
+  }
+  if (state.currentProject === '3136') {
+    return './assets/device_3136.png';
   }
   return isOff ? './assets/device_clean_off.png' : './assets/device_clean.png';
 }

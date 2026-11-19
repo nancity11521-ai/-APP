@@ -2478,3 +2478,39 @@ input:checked + .toggle-slider:before {
   height: 36px;
   color: inherit;
 }
+
+.project-session {
+  position: fixed;
+  z-index: 50;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  max-width: calc(100vw - 24px);
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #f6f8fc;
+  color: #354056;
+  font-size: 12px;
+}
+.project-session button, #project-login button {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #e0ebfa;
+  color: #174a82;
+  cursor: pointer;
+}
+#project-login {
+  margin: auto;
+  width: min(90vw, 340px);
+  padding: 20px;
+  border: 0;
+  border-radius: 18px;
+  color: #182438;
+}
+#project-login::backdrop { background: #0a142866; }
+#project-login label, #project-login input { display: block; margin-top: 8px; }
+#project-login input { width: 100%; padding: 8px; }
+#project-login p { min-height: 1.5em; margin: 8px 0; }

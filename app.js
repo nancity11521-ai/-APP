@@ -775,7 +775,8 @@ const MUSIC_APPS = [
 ];
 
 // 3. 初始化
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await projectSync.ready;
   const params = new URLSearchParams(window.location.search);
   if (params.has('lang') && I18N_LOCALES[params.get('lang')]) {
     state.lang = params.get('lang');
@@ -838,6 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 绑定所有胶囊滚动容器的双向羽化渐隐监听
   initAllScrollersOverflow();
+  projectSync.start();
 });
 
 /**
@@ -1015,7 +1017,7 @@ function saveProjectEnabledEffects(projectId, enabledMap) {
   state.projectEnabledEffects[projectId] = enabledMap;
   state.projectEnabledEffects[normId] = enabledMap;
   try {
-    localStorage.setItem('ambient_light_project_enabled_effects', JSON.stringify(state.projectEnabledEffects));
+    projectSync.setItem('ambient_light_project_enabled_effects', JSON.stringify(state.projectEnabledEffects));
   } catch (e) {
     console.warn('Failed to save project enabled effects', e);
   }
@@ -2006,7 +2008,7 @@ function saveProjectLightConfig(projectId, config) {
   state.projectLightConfigs[projectId] = { ...config };
   state.projectLightConfigs[normId] = { ...config };
   try {
-    localStorage.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
+    projectSync.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
   } catch (e) {
     console.warn('Failed to save project light config', e);
   }
@@ -2430,7 +2432,7 @@ function saveCurrentProjectScenes() {
   state.projectScenes[p] = cloned;
   state.projectScenes[norm] = cloned;
   try {
-    localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
+    projectSync.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
   } catch (e) {
     console.warn('Failed to save project scenes to localStorage', e);
   }
@@ -2615,7 +2617,7 @@ function confirmAndCloseProjectEffectsModal() {
  */
 function initProjectSystem() {
   try {
-    const savedProjects = localStorage.getItem('ambient_light_projects_list');
+    const savedProjects = projectSync.getItem('ambient_light_projects_list');
     if (savedProjects) {
       const parsed = JSON.parse(savedProjects);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -2631,7 +2633,7 @@ function initProjectSystem() {
     } else {
       state.projects = ['GQ5023', '3137', 'GQ3135', 'GQ3136'];
     }
-    const savedCustom = localStorage.getItem('ambient_light_custom_diagrams');
+    const savedCustom = projectSync.getItem('ambient_light_custom_diagrams');
     if (savedCustom) {
       state.customDiagrams = JSON.parse(savedCustom) || {};
     }
@@ -2642,7 +2644,7 @@ function initProjectSystem() {
         state.customDiagrams[canonicalId] = state.customDiagrams[id];
       }
     }
-    const savedConfigs = localStorage.getItem('ambient_light_project_configs');
+    const savedConfigs = projectSync.getItem('ambient_light_project_configs');
     if (savedConfigs) {
       state.projectLightConfigs = JSON.parse(savedConfigs) || {};
     }
@@ -2652,11 +2654,11 @@ function initProjectSystem() {
       if (cfg.scale === 1.6 || cfg.width === '13.60%' || cfg.left === '44.55%') {
         state.projectLightConfigs['3137'] = { ...DEFAULT_PROJECT_LIGHT_CONFIGS['3137'] };
         try {
-          localStorage.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
+          projectSync.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
         } catch (e) {}
       }
     }
-    const savedCurrent = localStorage.getItem('ambient_light_current_project');
+    const savedCurrent = projectSync.getItem('ambient_light_current_project');
     if (savedCurrent) {
       const normCur = normalizeProjectId(savedCurrent);
       if (state.projects.includes(normCur)) {
@@ -2667,13 +2669,13 @@ function initProjectSystem() {
     }
 
     // 读取多项目专属模式灯效方案
-    const savedProjectScenes = localStorage.getItem('ambient_light_project_scenes');
+    const savedProjectScenes = projectSync.getItem('ambient_light_project_scenes');
     if (savedProjectScenes) {
       state.projectScenes = JSON.parse(savedProjectScenes) || {};
     }
 
     // 读取多项目专属已启用的模式灯效配置 (白名单多选)
-    const savedEnabled = localStorage.getItem('ambient_light_project_enabled_effects');
+    const savedEnabled = projectSync.getItem('ambient_light_project_enabled_effects');
     if (savedEnabled) {
       state.projectEnabledEffects = JSON.parse(savedEnabled) || {};
     }
@@ -2816,11 +2818,11 @@ function deleteCurrentProject() {
 
   // 5. 保存到 localStorage
   try {
-    localStorage.setItem('ambient_light_projects_list', JSON.stringify(state.projects));
-    localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
-    localStorage.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
-    localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
-    localStorage.setItem('ambient_light_project_enabled_effects', JSON.stringify(state.projectEnabledEffects));
+    projectSync.setItem('ambient_light_projects_list', JSON.stringify(state.projects));
+    projectSync.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+    projectSync.setItem('ambient_light_project_configs', JSON.stringify(state.projectLightConfigs));
+    projectSync.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
+    projectSync.setItem('ambient_light_project_enabled_effects', JSON.stringify(state.projectEnabledEffects));
   } catch (e) {
     console.warn('Failed to update localStorage after deletion', e);
   }
@@ -2843,7 +2845,7 @@ function switchProject(projectId) {
   // 2. 切换当前项目
   state.currentProject = projectId;
   try {
-    localStorage.setItem('ambient_light_current_project', projectId);
+    projectSync.setItem('ambient_light_current_project', projectId);
   } catch (e) {}
   const select = document.getElementById('desktopProjectSelect');
   if (select) select.value = projectId;
@@ -2877,7 +2879,7 @@ function addNewProject(projectName) {
   if (!state.projects.includes(projectName)) {
     state.projects.push(projectName);
     try {
-      localStorage.setItem('ambient_light_projects_list', JSON.stringify(state.projects));
+      projectSync.setItem('ambient_light_projects_list', JSON.stringify(state.projects));
     } catch (e) {
       console.warn('Failed to save project list', e);
     }
@@ -2887,7 +2889,7 @@ function addNewProject(projectName) {
       const defScenes = DEFAULT_PROJECT_SCENES[norm] || DEFAULT_PROJECT_SCENES[projectName] || DEFAULT_PROJECT_SCENES['GQ5023'];
       state.projectScenes[projectName] = JSON.parse(JSON.stringify(defScenes));
       try {
-        localStorage.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
+        projectSync.setItem('ambient_light_project_scenes', JSON.stringify(state.projectScenes));
       } catch (e) {}
     }
     renderProjectOptions();
@@ -2911,7 +2913,7 @@ function handleProjectDiagramUpload(event) {
     state.customDiagrams[project] = dataUrl;
     state.customDiagrams[norm] = dataUrl;
     try {
-      localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+      projectSync.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
     } catch (err) {
       console.warn('localStorage quota exceeded for custom diagram', err);
     }
@@ -2931,7 +2933,7 @@ function handleProjectDiagramUpload(event) {
           state.customDiagrams[project] = detected.cleanedDataUrl;
           state.customDiagrams[norm] = detected.cleanedDataUrl;
           try {
-            localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+            projectSync.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
           } catch (e) {}
         }
         saveProjectLightConfig(project, curConf);
@@ -2968,7 +2970,7 @@ function resetCurrentProjectDiagram() {
   }
   if (changed) {
     try {
-      localStorage.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
+      projectSync.setItem('ambient_light_custom_diagrams', JSON.stringify(state.customDiagrams));
     } catch (e) {
       console.warn(e);
     }

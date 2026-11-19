@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>通知氛围灯效果设置 - 多语言交互原型 (DYNAMIC SOUND)</title>
-  <link rel="stylesheet" href="./style.css?v=20261119_widget_nav">
+  <link rel="stylesheet" href="./style.css?v=20261119_project_sync">
 </head>
 <body>
   <a class="desktop-widget-entry" href="./desktop-widget/">幻彩脉动桌面小部件</a>
@@ -1171,6 +1171,22 @@
     </div>
   </main>
 
-  <script src="./app.js?v=20261119_keep_uploads"></script>
+  <div class="project-session">
+    <button type="button" id="project-session-action">登录编辑</button>
+    <button type="button" id="project-save-retry" hidden>重试保存</button>
+    <span id="project-sync-status" role="status">访客只读</span>
+  </div>
+  <dialog id="project-login" aria-labelledby="project-login-title">
+    <form>
+      <h2 id="project-login-title">登录编辑</h2>
+      <label for="project-password">密码</label>
+      <input id="project-password" name="password" type="password" required autocomplete="current-password">
+      <p role="status"></p>
+      <button type="button" data-close>取消</button>
+      <button type="submit">登录</button>
+    </form>
+  </dialog>
+  <script src="./project-sync.js?v=1"></script>
+  <script src="./app.js?v=20261119_project_sync"></script>
 </body>
 </html>

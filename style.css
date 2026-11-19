@@ -2463,7 +2463,7 @@ input:checked + .toggle-slider:before {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 16px;
+  padding: 0 6px;
 }
 
 .widget-home-heading h1 {

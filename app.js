@@ -778,6 +778,7 @@ const MUSIC_APPS = [
 document.addEventListener('DOMContentLoaded', async () => {
   await projectSync.ready;
   const params = new URLSearchParams(window.location.search);
+  const usePreviewValues = !projectSync.getItem('ambient_light_project_scenes');
   if (params.has('lang') && I18N_LOCALES[params.get('lang')]) {
     state.lang = params.get('lang');
     const select = document.getElementById('langSelect');
@@ -790,14 +791,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.currentPage = params.get('page');
   }
 
-  if (params.has('brightness')) {
+  if (usePreviewValues && params.has('brightness')) {
     const b = parseInt(params.get('brightness'), 10);
     if (!isNaN(b) && b >= 20 && b <= 100) {
       state.globalBrightness = b;
     }
   }
 
-  if (params.has('master')) {
+  if (usePreviewValues && params.has('master')) {
     const m = params.get('master').toLowerCase();
     if (m === '0' || m === 'false' || m === 'off') {
       state.scenes.home.enabled = false;
@@ -806,7 +807,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  if (params.has('adaptive')) {
+  if (usePreviewValues && params.has('adaptive')) {
     const ad = params.get('adaptive').toLowerCase();
     state.scenes.charging.batteryAdaptive = (ad !== '0' && ad !== 'false' && ad !== 'off');
     const adSw = document.getElementById('switch_batteryAdaptive');
@@ -816,7 +817,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 初始化项目筛选与各项目专属模式灯效管理系统
   initProjectSystem();
 
-  if (params.has('effect')) {
+  if (usePreviewValues && params.has('effect')) {
     const ef = params.get('effect');
     if (state.scenes[state.currentPage]) {
       state.scenes[state.currentPage].effect = ef;
@@ -952,6 +953,7 @@ function selectMusicFourColorPalette(index) {
   root.style.setProperty('--music-c3', pal.c3);
   root.style.setProperty('--music-c4', pal.c4);
   updateStatusChips();
+  saveCurrentProjectScenes();
 }
 
 /**

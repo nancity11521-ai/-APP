@@ -190,22 +190,35 @@ const projectSync = (() => {
     }
   });
 
-  const permittedClick = /^(navigateTo|goBackToHome|handleSceneRowClick|handleActiveTimeRowClick|toggleLanguageSheet|selectAppLanguage|toggleAppsSheet|toggleDurationSheet|openEffectiveAppsSheet|openChargingDurationSheet)\(/;
+  const restrictedSelector = [
+    '#btnToggleProjectEffects',
+    '#btnToggleLightAdjust',
+    '#btnDeleteCurrentProject',
+    '#btnResetProjectDiagram',
+    '#projectDiagramUploader',
+    '#projectEffectsModal',
+    '#lightAdjustPanel',
+    '#newProjectModal'
+  ].join(', ');
   function restrictVisitor(event) {
     if (editable || !(event.target instanceof Element)) return;
-    const control = event.target.closest('.phone-frame button, .phone-frame input, .phone-frame [onclick], .phone-frame label, .desktop-floating-tools button, .desktop-floating-tools select');
-    if (!control || control.matches('#desktopLangSelect, #langSelect, .widget-back-link')) return;
-    if (control.matches('#desktopProjectSelect') && !control.value.startsWith('__')) return;
-    if (event.type === 'click' && permittedClick.test(control.getAttribute('onclick') || '')) return;
+    const select = event.target.closest('#desktopProjectSelect');
+    if (select) {
+      if (!select.value.startsWith('__')) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const current = sessionStorage.getItem(localProjectKey);
+      const currentOption = current && Array.from(select.options).find(option => option.value === current);
+      const previous = currentOption || Array.from(select.options).find(option => option.defaultSelected) || select.options[0];
+      select.value = previous.value;
+      status('登录后可修改项目或示意图');
+      return;
+    }
+    const restricted = event.target.closest(restrictedSelector);
+    if (!restricted) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    if (control.matches('#desktopProjectSelect')) {
-      const current = sessionStorage.getItem(localProjectKey);
-      const currentOption = current && Array.from(control.options).find(option => option.value === current);
-      const previous = currentOption || Array.from(control.options).find(option => option.defaultSelected) || control.options[0];
-      control.value = previous.value;
-    }
-    status('只读预览，登录后可编辑');
+    status('登录后可修改灯效模式、灯位、项目或示意图');
   }
 
   for (const event of ['click', 'input', 'change']) document.addEventListener(event, restrictVisitor, true);

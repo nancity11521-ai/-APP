@@ -2512,5 +2512,8 @@ input:checked + .toggle-slider:before {
 }
 #project-login::backdrop { background: #0a142866; }
 #project-login label, #project-login input { display: block; margin-top: 8px; }
-#project-login input { width: 100%; padding: 8px; }
-#project-login p { min-height: 1.5em; margin: 8px 0; }
+#project-login input { box-sizing: border-box; width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+#project-login p { min-height: 1.5em; margin: 8px 0; font-size: 13px; color: #475569; }
+#project-login p[data-error="true"] { color: #dc2626; }
+#project-login button[type="submit"] { background: #174a82; color: #fff; }
+.project-session button:disabled, #project-login button:disabled { opacity: 0.6; cursor: not-allowed; }

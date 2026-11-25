@@ -59,10 +59,20 @@ const projectSync = (() => {
         throw new Error('线上回读内容不一致');
       }
       status(pending ? '还有改动待保存…' : '已保存到线上');
-      if (pending) timer = setTimeout(save, 0);
+      if (pending) {
+        clearTimeout(timer);
+        timer = setTimeout(save, 0);
+      }
     } catch (error) {
       pending = true;
-      if (error.status === 409) {
+      if (error.status === 401) {
+        token = null;
+        sessionStorage.removeItem(sessionKey);
+        editable = false;
+        action.textContent = '登录编辑';
+        retry.hidden = true;
+        status('登录已过期，请重新登录后保存');
+      } else if (error.status === 409) {
         status('其他设备已保存新版本，本次更改未覆盖线上');
       } else {
         status(error.status ? error.message + '，当前改动未同步' : '连接失败，当前改动未同步');
@@ -82,6 +92,9 @@ const projectSync = (() => {
 
   const ready = (async () => {
     if (!token) return;
+    action.disabled = true;
+    action.textContent = '正在登录…';
+    status('正在加载线上内容…');
     try {
       const snapshot = await request('/snapshot');
       revision = snapshot.revision;
@@ -99,10 +112,25 @@ const projectSync = (() => {
       action.textContent = '退出编辑';
       status(revision ? '已加载线上内容' : '已登录');
     } catch (error) {
-      if (error.status === 401) sessionStorage.removeItem(sessionKey);
+      if (error.status === 401) {
+        token = null;
+        sessionStorage.removeItem(sessionKey);
+      }
+      action.textContent = '登录编辑';
       status(error.status === 401 ? '登录已过期' : '同步暂时不可用');
+    } finally {
+      action.disabled = false;
     }
   })();
+
+  function openLoginModal() {
+    form.reset();
+    const feedback = login.querySelector('[role="status"]');
+    feedback.textContent = '';
+    delete feedback.dataset.error;
+    login.showModal();
+    requestAnimationFrame(() => form.elements.password.focus());
+  }
 
   action.addEventListener('click', () => {
     if (editable) {
@@ -114,25 +142,42 @@ const projectSync = (() => {
       sessionStorage.removeItem(sessionKey);
       location.reload();
     } else {
-      login.querySelector('[role="status"]').textContent = '';
-      login.showModal();
+      openLoginModal();
     }
   });
   retry.addEventListener('click', save);
   login.querySelector('[data-close]').addEventListener('click', () => login.close());
+  login.addEventListener('click', event => {
+    if (event.target === login) login.close();
+  });
+  form.elements.password.addEventListener('input', () => {
+    const feedback = login.querySelector('[role="status"]');
+    feedback.textContent = '';
+    delete feedback.dataset.error;
+  });
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const feedback = login.querySelector('[role="status"]');
     const submit = form.querySelector('[type="submit"]');
+    const cancel = login.querySelector('[data-close]');
+    delete feedback.dataset.error;
+    feedback.textContent = '正在登录…';
     submit.disabled = true;
+    cancel.disabled = true;
     try {
       const session = await request('/login', 'POST', { password: form.elements.password.value });
+      token = session.token;
       sessionStorage.setItem(sessionKey, session.token);
+      login.close();
       location.reload();
     } catch (error) {
+      feedback.dataset.error = 'true';
       feedback.textContent = error.status ? error.message : '暂时无法登录，请稍后重试';
+      form.elements.password.focus();
+      form.elements.password.select();
     } finally {
       submit.disabled = false;
+      cancel.disabled = false;
     }
   });
 
@@ -146,7 +191,9 @@ const projectSync = (() => {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (control.matches('#desktopProjectSelect')) {
-      const previous = Array.from(control.options).find(option => option.defaultSelected) || control.options[0];
+      const current = sessionStorage.getItem(localProjectKey);
+      const currentOption = current && Array.from(control.options).find(option => option.value === current);
+      const previous = currentOption || Array.from(control.options).find(option => option.defaultSelected) || control.options[0];
       control.value = previous.value;
     }
     status('只读预览，登录后可编辑');

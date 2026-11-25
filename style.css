@@ -2502,6 +2502,11 @@ input:checked + .toggle-slider:before {
   color: #174a82;
   cursor: pointer;
 }
+#project-save-confirm:not(:disabled) {
+  background: #174a82;
+  color: #fff;
+  font-weight: 600;
+}
 #project-login {
   margin: auto;
   width: min(90vw, 340px);

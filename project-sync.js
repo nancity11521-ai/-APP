@@ -10,7 +10,7 @@ const projectSync = (() => {
   const login = document.querySelector('#project-login');
   const form = login.querySelector('form');
   const action = document.querySelector('#project-session-action');
-  const retry = document.querySelector('#project-save-retry');
+  const confirmSave = document.querySelector('#project-save-confirm');
   const indicator = document.querySelector('#project-sync-status');
   const status = message => { indicator.textContent = message; };
   let token = sessionStorage.getItem(sessionKey);
@@ -21,7 +21,18 @@ const projectSync = (() => {
   let migrateLocal = false;
   let pending = false;
   let saving = false;
-  let timer;
+
+  function updateSaveButton() {
+    confirmSave.hidden = !editable;
+    if (!editable) return;
+    if (saving) {
+      confirmSave.disabled = true;
+      confirmSave.textContent = '保存中…';
+    } else {
+      confirmSave.disabled = !pending;
+      confirmSave.textContent = '确认保存';
+    }
+  }
 
   async function request(path, method = 'GET', body) {
     const headers = {};
@@ -43,8 +54,8 @@ const projectSync = (() => {
     if (!editable || !pending || saving) return;
     saving = true;
     pending = false;
-    retry.hidden = true;
-    status('正在保存…');
+    updateSaveButton();
+    status('正在保存到线上…');
     try {
       const submitted = { ...data };
       const saved = await request('/snapshot', 'PUT', { data: submitted, revision });
@@ -58,11 +69,7 @@ const projectSync = (() => {
       if (keys.some(key => verified.data[key] !== submitted[key])) {
         throw new Error('线上回读内容不一致');
       }
-      status(pending ? '还有改动待保存…' : '已保存到线上');
-      if (pending) {
-        clearTimeout(timer);
-        timer = setTimeout(save, 0);
-      }
+      status(pending ? '仍有新改动，请再次点击「确认保存」' : '已保存到线上');
     } catch (error) {
       pending = true;
       if (error.status === 401) {
@@ -70,24 +77,22 @@ const projectSync = (() => {
         sessionStorage.removeItem(sessionKey);
         editable = false;
         action.textContent = '登录编辑';
-        retry.hidden = true;
         status('登录已过期，请重新登录后保存');
       } else if (error.status === 409) {
         status('其他设备已保存新版本，本次更改未覆盖线上');
       } else {
-        status(error.status ? error.message + '，当前改动未同步' : '连接失败，当前改动未同步');
-        retry.hidden = false;
+        status(error.status ? error.message + '，请点击「确认保存」重试' : '连接失败，请点击「确认保存」重试');
       }
     } finally {
       saving = false;
+      updateSaveButton();
     }
   }
 
-  function queueSave() {
+  function markDirty(message = '有未保存改动，请点击「确认保存」') {
     pending = true;
-    clearTimeout(timer);
-    status('待保存…');
-    timer = setTimeout(save, 700);
+    if (!saving) status(message);
+    updateSaveButton();
   }
 
   const ready = (async () => {
@@ -120,6 +125,7 @@ const projectSync = (() => {
       status(error.status === 401 ? '登录已过期' : '同步暂时不可用');
     } finally {
       action.disabled = false;
+      updateSaveButton();
     }
   })();
 
@@ -134,18 +140,21 @@ const projectSync = (() => {
 
   action.addEventListener('click', () => {
     if (editable) {
-      if (pending || saving) {
-        status('当前还有改动未保存');
-        if (!saving) save();
+      if (saving) {
+        status('正在保存，请稍候…');
         return;
       }
+      if (pending && !window.confirm('当前有尚未保存到线上的改动，确定要放弃改动并退出编辑吗？')) {
+        return;
+      }
+      pending = false;
       sessionStorage.removeItem(sessionKey);
       location.reload();
     } else {
       openLoginModal();
     }
   });
-  retry.addEventListener('click', save);
+  confirmSave.addEventListener('click', save);
   login.querySelector('[data-close]').addEventListener('click', () => login.close());
   login.addEventListener('click', event => {
     if (event.target === login) login.close();
@@ -211,7 +220,7 @@ const projectSync = (() => {
     saveNow: save,
     start() {
       initialized = true;
-      if (editable && migrateLocal) queueSave();
+      if (editable && migrateLocal) markDirty('有本地缓存待同步，请点击「确认保存」');
       if (!editable) {
         for (const option of document.querySelectorAll('#desktopProjectSelect option')) {
           if (option.value.startsWith('__')) option.disabled = true;
@@ -227,7 +236,7 @@ const projectSync = (() => {
         sessionStorage.setItem(key, value);
       } else if (editable && keys.includes(key) && data[key] !== value) {
         data[key] = value;
-        if (initialized) queueSave();
+        if (initialized) markDirty();
       }
     }
   };

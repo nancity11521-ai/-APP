@@ -2980,8 +2980,7 @@ async function handleProjectDiagramUpload(event) {
     applyProjectLightConfig(state.currentProject);
     updateResetDiagramButtonVisibility();
     updateAllMockupImages();
-    showUploadToast(state.lang === 'zh-CN' ? '示意图已更新，正在同步到线上' : 'Diagram updated. Syncing online.');
-    projectSync.saveNow();
+    showUploadToast(state.lang === 'zh-CN' ? '示意图已更新，请点击左下角「确认保存」同步到线上' : 'Diagram updated. Click Confirm Save to sync online.');
   } catch (error) {
     if (diagramUploads.get(project) === upload) {
       showUploadToast(state.lang === 'zh-CN' ? '无法处理示意图，请选择有效图片' : 'Could not process this image.');

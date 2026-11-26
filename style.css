@@ -1955,9 +1955,11 @@ input:checked + .toggle-slider:before {
 .color-ring-btn.ring-light-blue-gray {
   border-color: #d8ecfe;
 }
-.color-ring-btn.ring-white {
-  border-color: #fff;
-  box-shadow: 0 0 0 1px #a8afb9, inset 0 0 0 1px #a8afb9;
+.color-ring-btn.ring-white,
+.color-ring-btn.ring-white.active {
+  border-color: #a8afb9;
+  border-width: 1px;
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 3px #a8afb9;
 }
 .color-ring-btn.ring-white.active::before {
   background: #fff;

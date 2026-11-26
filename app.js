@@ -976,12 +976,13 @@ function updateMusicColorModules(effectName) {
   const fourColorMod = document.getElementById('colorModule_music_four_color');
   const singleColorMod = document.getElementById('colorModule_music_single');
 
+  const keepPresets = isCapsuleLightProject(state.currentProject);
   if (effectName === 'color_rhythm') {
     if (fourColorMod) fourColorMod.style.display = 'none';
-    if (singleColorMod) singleColorMod.style.display = 'none';
+    if (singleColorMod) singleColorMod.style.display = keepPresets ? 'block' : 'none';
   } else if (effectName === 'four_color') {
     if (fourColorMod) fourColorMod.style.display = 'block';
-    if (singleColorMod) singleColorMod.style.display = 'none';
+    if (singleColorMod) singleColorMod.style.display = keepPresets ? 'block' : 'none';
     const pIdx = state.scenes.music.fourColorPalette !== undefined ? state.scenes.music.fourColorPalette : 3;
     selectMusicFourColorPalette(pIdx);
   } else if (effectName === 'breathing' || effectName === 'rhythm') {
@@ -999,9 +1000,6 @@ const SCENE_ALL_CANDIDATE_EFFECTS = {
   music: ['color_rhythm', 'four_color', 'breathing', 'rhythm'],
   power: ['breathing', 'pulsing']
 };
-
-// 保持向下兼容别名
-const SCENE_ALLOWED_EFFECTS = SCENE_ALL_CANDIDATE_EFFECTS;
 
 /**
  * 获取指定项目在各场景下启用的灯效列表 (白名单多选)
@@ -1161,23 +1159,7 @@ function selectSceneEffect(sceneId, effectName, fromModal = false) {
   // 2. 更新该场景顶部 DYNAMIC SOUND 设备动效
   applySceneEffectToMockup(sceneId, effectName);
 
-  // 3. 同步联动颜色选择中的光环预设选中态（单色 vs 彩色 vs 四色）
-  const presetsRow = document.getElementById(`colorPresets_${sceneId}_main`);
-  if (presetsRow) {
-    if (effectName === 'color_rhythm') {
-      presetsRow.querySelectorAll('.color-ring-btn').forEach(btn => btn.classList.remove('active'));
-      const rainbowBtn = presetsRow.querySelector('.color-ring-btn.ring-rainbow');
-      if (rainbowBtn) rainbowBtn.classList.add('active');
-    } else if (effectName === 'four_color') {
-      presetsRow.querySelectorAll('.color-ring-btn').forEach(btn => btn.classList.remove('active'));
-      const fourBtn = presetsRow.querySelector('.color-ring-btn.ring-four-color');
-      if (fourBtn) fourBtn.classList.add('active');
-    } else {
-      presetsRow.querySelectorAll('.color-ring-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-color') === scData.color);
-      });
-    }
-  }
+  syncSceneColorPresets(sceneId);
 
   // 4. 更新提示文案
   const dict = I18N_LOCALES[state.lang] || I18N_LOCALES['zh-CN'];
@@ -1232,35 +1214,44 @@ function applySceneEffectToMockup(sceneId, effectName) {
     return;
   }
 
+  mockup.dataset.lightPalette = isCapsuleLightProject(state.currentProject) ? scData.lightPalette || '' : '';
   mockup.classList.add(`fx-${effectName}`);
 }
 
 /**
  * 点击颜色选择中的多色圆环（彩色律动 / 四色律动）
  */
+function syncSceneColorPresets(sceneId) {
+  const scene = state.scenes[sceneId];
+  const row = document.getElementById(`colorPresets_${sceneId}_main`);
+  if (!row || !scene) return;
+  const palette = isCapsuleLightProject(state.currentProject) ? scene.lightPalette : null;
+  const effect = palette || scene.effect;
+  const multicolor = effect === 'color_rhythm' || effect === 'four_color';
+  row.querySelectorAll('.color-ring-btn').forEach(button => {
+    const selected = multicolor ? button.dataset.effect === effect : button.dataset.color === scene.color;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
+}
+
 function selectSceneColorRing(sceneId, ringType, subKey = 'main') {
-  const scData = state.scenes[sceneId];
-  if (!scData) return;
+  const scene = state.scenes[sceneId];
+  if (!scene?.enabled) return;
+  const effect = ringType === 'rainbow' ? 'color_rhythm' : 'four_color';
 
-  const boxId = `${sceneId}_${subKey}`;
-  const presetsRow = document.getElementById(`colorPresets_${boxId}`);
-  if (presetsRow) {
-    presetsRow.querySelectorAll('.color-ring-btn').forEach(btn => btn.classList.remove('active'));
-    const targetClass = (ringType === 'four_color' || ringType === 'four-color') ? 'ring-four-color' : `ring-${ringType}`;
-    const targetBtn = presetsRow.querySelector(`.color-ring-btn.${targetClass}`);
-    if (targetBtn) targetBtn.classList.add('active');
+  if (isCapsuleLightProject(state.currentProject) && sceneId !== 'music') {
+    scene.lightPalette = effect;
+    applySceneEffectToMockup(sceneId, scene.effect);
+    syncSceneColorPresets(sceneId);
+    const hint = document.getElementById(`colorHint_${sceneId}_${subKey}`);
+    const dict = I18N_LOCALES[state.lang] || I18N_LOCALES['zh-CN'];
+    if (hint) hint.textContent = dict[`effect_${effect}`];
+    saveCurrentProjectScenes();
+    return;
   }
 
-  const allowed = SCENE_ALLOWED_EFFECTS[sceneId];
-  if (ringType === 'rainbow') {
-    if (allowed && allowed.includes('color_rhythm')) {
-      selectSceneEffect(sceneId, 'color_rhythm');
-    }
-  } else if (ringType === 'four_color') {
-    if (allowed && allowed.includes('four_color')) {
-      selectSceneEffect(sceneId, 'four_color');
-    }
-  }
+  selectSceneEffect(sceneId, effect);
 }
 
 /**
@@ -1274,14 +1265,16 @@ function selectSceneColor(sceneId, colorHex, colorKey, subKey = 'main') {
     scData.inCallColor = colorHex;
     scData.inCallColorKey = colorKey;
   } else {
+    delete scData.lightPalette;
     scData.color = colorHex;
     scData.colorKey = colorKey;
     // 若原先是彩色律动或四色律动，切换到纯色时恢复单色呼吸效果（若支持）或首选允许效果
     if (scData.effect === 'color_rhythm' || scData.effect === 'four_color') {
-      const allowed = SCENE_ALLOWED_EFFECTS[sceneId];
+      const allowed = getProjectEnabledEffects(state.currentProject)[sceneId] || SCENE_ALL_CANDIDATE_EFFECTS[sceneId];
       const fallbackEffect = (allowed && allowed.includes('breathing')) ? 'breathing' : (allowed ? allowed[0] : 'breathing');
       scData.effect = fallbackEffect;
       applySceneEffectToMockup(sceneId, fallbackEffect);
+      if (sceneId === 'music') updateMusicColorModules(fallbackEffect);
       const track = document.getElementById(`capsulesTrack_${sceneId}`);
       if (track) {
         track.querySelectorAll('.capsule-btn').forEach(btn => {
@@ -1312,6 +1305,10 @@ function selectSceneColor(sceneId, colorHex, colorKey, subKey = 'main') {
 
   // 4. 应用颜色到发光环及胶囊联动描边
   applyHaloColor(colorHex);
+  if (subKey === 'main') {
+    applySceneEffectToMockup(sceneId, scData.effect);
+    syncSceneColorPresets(sceneId);
+  }
   updateStatusChips();
   saveCurrentProjectScenes();
 }
@@ -1361,13 +1358,15 @@ function pickSceneWheelColor(e, sceneId, subKey = 'main') {
     scData.inCallColor = pickedHex;
     scData.inCallColorKey = 'color_custom';
   } else {
+    delete scData.lightPalette;
     scData.color = pickedHex;
     scData.colorKey = 'color_custom';
     if (scData.effect === 'color_rhythm' || scData.effect === 'four_color') {
-      const allowed = SCENE_ALLOWED_EFFECTS[sceneId];
+      const allowed = getProjectEnabledEffects(state.currentProject)[sceneId] || SCENE_ALL_CANDIDATE_EFFECTS[sceneId];
       const fallbackEffect = (allowed && allowed.includes('breathing')) ? 'breathing' : (allowed ? allowed[0] : 'breathing');
       scData.effect = fallbackEffect;
       applySceneEffectToMockup(sceneId, fallbackEffect);
+      if (sceneId === 'music') updateMusicColorModules(fallbackEffect);
       const track = document.getElementById(`capsulesTrack_${sceneId}`);
       if (track) {
         track.querySelectorAll('.capsule-btn').forEach(btn => {
@@ -1392,6 +1391,10 @@ function pickSceneWheelColor(e, sceneId, subKey = 'main') {
   if (hint) hint.textContent = dict['color_custom'] || '自定义';
 
   applyHaloColor(pickedHex);
+  if (subKey === 'main') {
+    applySceneEffectToMockup(sceneId, scData.effect);
+    syncSceneColorPresets(sceneId);
+  }
   updateStatusChips();
   saveCurrentProjectScenes();
 }
@@ -2501,12 +2504,7 @@ function refreshAllScenesUI() {
     applySceneEffectToMockup(scId, scData.effect);
 
     // 4. 刷新选色盘高亮态
-    const presetsRow = document.getElementById(`colorPresets_${scId}_main`);
-    if (presetsRow) {
-      presetsRow.querySelectorAll('.color-ring-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-color') === scData.color);
-      });
-    }
+    syncSceneColorPresets(scId);
 
     // 5. 刷新具体场景特性
     if (scId === 'music') {

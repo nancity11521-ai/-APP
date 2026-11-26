@@ -1953,7 +1953,7 @@ input:checked + .toggle-slider:before {
   border-color: #603b44;
 }
 .color-ring-btn.ring-light-blue-gray {
-  border-color: #b6c3d5;
+  border-color: #d8ecfe;
 }
 .color-ring-btn.ring-white {
   border-color: #fff;
@@ -2036,7 +2036,7 @@ input:checked + .toggle-slider:before {
   background-color: #603b44;
 }
 .color-ring-btn.ring-light-blue-gray.active::before {
-  background-color: #b6c3d5;
+  background-color: #d8ecfe;
 }
 .color-ring-btn.ring-rainbow.active::before {
   background: conic-gradient(from 270deg, #ffd700 0%, #00e676 15%, #00b0ff 30%, #7c4dff 45%, #e040fb 60%, #ff1744 75%, #ff9100 88%, #ffd700 100%);

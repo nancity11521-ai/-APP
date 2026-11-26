@@ -1004,7 +1004,7 @@ const PROJECT_COLOR_PRESETS = [
   ['#00e600', 'color_grass_green'],
   ['#ffa850', 'color_peach_orange'],
   ['#603b44', 'color_wine_red'],
-  ['#b6c3d5', 'color_light_blue_gray'],
+  ['#d8ecfe', 'color_light_blue_gray'],
   ['#ffffff', 'color_white'],
   ['color_rhythm', 'effect_color_rhythm'],
   ['four_color', 'effect_four_color']
@@ -1012,7 +1012,8 @@ const PROJECT_COLOR_PRESETS = [
 
 const REPLACED_COLOR_PRESETS = {
   '#4ca8ff': '#603b44',
-  '#00f5e6': '#b6c3d5'
+  '#00f5e6': '#d8ecfe',
+  '#b6c3d5': '#d8ecfe'
 };
 
 function getVisibleColorPresets(enabledMap) {
@@ -1453,7 +1454,7 @@ function updateWheelThumb(boxId, colorHex) {
     '#00e600': { left: '35%', top: '90%' },
     '#ffa850': { left: '80%', top: '74%' },
     '#603b44': { left: '66%', top: '44%' },
-    '#b6c3d5': { left: '43%', top: '45%' },
+    '#d8ecfe': { left: '43%', top: '45%' },
     '#ffffff': { left: '50%', top: '50%' }
   };
   const pos = presetPositions[colorHex] || { left: '35%', top: '90%' };
@@ -2507,8 +2508,8 @@ function loadCurrentProjectScenes() {
     for (const scene of Object.values(state.scenes)) {
       for (const [colorField, keyField] of [['color', 'colorKey'], ['inCallColor', 'inCallColorKey']]) {
         const nextKey = renamedKeys[scene[keyField]];
-        if (nextKey) {
-          scene[keyField] = nextKey;
+        if (nextKey || scene[keyField] === 'color_light_blue_gray') {
+          if (nextKey) scene[keyField] = nextKey;
           scene[colorField] = REPLACED_COLOR_PRESETS[scene[colorField]] || scene[colorField];
         }
       }

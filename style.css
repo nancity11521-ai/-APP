@@ -2522,3 +2522,19 @@ input:checked + .toggle-slider:before {
 #project-login p[data-error="true"] { color: #dc2626; }
 #project-login button[type="submit"] { background: #174a82; color: #fff; }
 .project-session button:disabled, #project-login button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* 6020: keep the capsule track fixed while its light effects animate. */
+.halo-ring-emitter--capsule {
+  aspect-ratio: 2.04;
+  border-radius: 999px;
+  padding: calc(var(--emitter-ring-width, 18%) * .14);
+  mask: linear-gradient(#fff 0 0) content-box exclude, linear-gradient(#fff 0 0);
+}
+.halo-ring-emitter--capsule .halo-core-ring {
+  width: 117%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 0;
+  -webkit-mask: none;
+  mask: none;
+}

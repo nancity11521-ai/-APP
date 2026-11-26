@@ -692,6 +692,16 @@ function normalizeProjectId(projectId) {
 }
 
 // 默认机型灯位与尺寸配置表 (支持多项目独立配置、自动识别与持久化)
+function isCapsuleLightProject(projectId) {
+  return /^(?:GQ)?6020$/i.test(String(projectId).trim());
+}
+
+// Relative to the 6020 line-art image and its purple light track.
+const CAPSULE_LIGHT_CONFIG = {
+  left: '31.6%', top: '87.0%', width: '11.9%', scale: 1, ringWidth: 18,
+  shape: 'capsule'
+};
+
 const DEFAULT_PROJECT_LIGHT_CONFIGS = {
   'GQ5023': {
     left: '67.19%',
@@ -1977,6 +1987,10 @@ function toggleAllApps(checked) {
  */
 function getProjectLightConfig(projectId) {
   const normId = normalizeProjectId(projectId);
+  if (isCapsuleLightProject(projectId)) {
+    const saved = state.projectLightConfigs?.[normId];
+    return saved?.shape === 'capsule' ? { ...CAPSULE_LIGHT_CONFIG, ...saved } : { ...CAPSULE_LIGHT_CONFIG };
+  }
   if (state.projectLightConfigs) {
     if (state.projectLightConfigs[normId]) {
       const cfg = { ...state.projectLightConfigs[normId] };
@@ -2012,6 +2026,7 @@ function getProjectLightConfig(projectId) {
  * 保存指定项目的发光灯位与缩放配置
  */
 function saveProjectLightConfig(projectId, config) {
+  if (isCapsuleLightProject(projectId)) config = { ...config, shape: 'capsule' };
   if (!state.projectLightConfigs) state.projectLightConfigs = {};
   const normId = normalizeProjectId(projectId);
   state.projectLightConfigs[projectId] = { ...config };
@@ -2047,6 +2062,7 @@ function applyProjectLightConfig(projectId) {
   scenes.forEach(s => {
     const emitter = document.getElementById(`haloEmitter_${s}`);
     if (emitter) {
+      emitter.classList.toggle('halo-ring-emitter--capsule', config.shape === 'capsule');
       emitter.style.left = config.left;
       emitter.style.top = config.top;
       emitter.style.width = config.width;
@@ -2157,7 +2173,9 @@ function handleLightParamChange() {
  */
 function resetCurrentProjectLightConfig() {
   const normId = normalizeProjectId(state.currentProject);
-  const defConf = DEFAULT_PROJECT_LIGHT_CONFIGS[normId] || DEFAULT_PROJECT_LIGHT_CONFIGS[state.currentProject];
+  const defConf = isCapsuleLightProject(state.currentProject)
+    ? CAPSULE_LIGHT_CONFIG
+    : DEFAULT_PROJECT_LIGHT_CONFIGS[normId] || DEFAULT_PROJECT_LIGHT_CONFIGS[state.currentProject];
   if (defConf) {
     saveProjectLightConfig(state.currentProject, { ...defConf });
   } else {
@@ -2960,7 +2978,7 @@ async function handleProjectDiagramUpload(event) {
   const src = URL.createObjectURL(file);
   try {
     const image = await decodeProjectDiagram(src);
-    const detected = autoDetectLightRingFromImage(image);
+    const detected = isCapsuleLightProject(project) ? null : autoDetectLightRingFromImage(image);
     const finalImage = detected?.cleanedDataUrl ? await decodeProjectDiagram(detected.cleanedDataUrl) : image;
     const dataUrl = encodeProjectDiagram(finalImage);
     if (diagramUploads.get(project) !== upload) return;

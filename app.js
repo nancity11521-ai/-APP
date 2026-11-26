@@ -993,6 +993,34 @@ function updateMusicColorModules(effectName) {
 }
 
 // 各场景候选的全部专属灯效配置表
+const PROJECT_COLOR_PRESETS = [
+  ['#00e600', 'color_grass_green'],
+  ['#ffa850', 'color_peach_orange'],
+  ['#4ca8ff', 'color_fog_blue'],
+  ['#00f5e6', 'color_cyan_blue'],
+  ['color_rhythm', 'effect_color_rhythm'],
+  ['four_color', 'effect_four_color']
+];
+
+function updateProjectColorVisibility(enabledMap) {
+  const visible = enabledMap.colorPresets;
+  document.querySelectorAll('.color-presets-row[id$="_main"]').forEach(row => {
+    let hasSingle = false;
+    let hasMulti = false;
+    row.querySelectorAll('.color-ring-btn').forEach(button => {
+      const { color, effect } = button.dataset;
+      button.hidden = Array.isArray(visible) && !visible.includes(color || effect);
+      if (!button.hidden) {
+        hasSingle ||= Boolean(color);
+        hasMulti ||= Boolean(effect);
+      }
+    });
+    row.hidden = !hasSingle && !hasMulti;
+    const divider = row.querySelector('.color-preset-divider');
+    if (divider) divider.hidden = !hasSingle || !hasMulti;
+  });
+}
+
 const SCENE_ALL_CANDIDATE_EFFECTS = {
   call: ['breathing', 'pulsing'],
   notification: ['breathing', 'pulsing'],
@@ -1088,6 +1116,7 @@ function toggleProjectSceneEffect(sceneId, effectName) {
 function updateAllSceneCapsulesVisibility() {
   const project = state.currentProject;
   const enabledMap = getProjectEnabledEffects(project);
+  updateProjectColorVisibility(enabledMap);
   const scenes = ['call', 'notification', 'charging', 'music', 'power'];
   const dict = I18N_LOCALES[state.lang] || I18N_LOCALES['zh-CN'];
 
@@ -2585,6 +2614,38 @@ function renderProjectEffectsModal() {
 
   const enabledMap = getProjectEnabledEffects(state.currentProject);
   container.innerHTML = '';
+
+  const paletteCard = document.createElement('div');
+  paletteCard.className = 'effect-mode-card';
+  const paletteTitle = document.createElement('div');
+  paletteTitle.className = 'effect-mode-title';
+  paletteTitle.textContent = state.lang === 'zh-CN' ? '页面显示的颜色' : 'Visible color presets';
+  const paletteChips = document.createElement('div');
+  paletteChips.className = 'mode-chips-group';
+  const visible = new Set(enabledMap.colorPresets ?? PROJECT_COLOR_PRESETS.map(([id]) => id));
+  PROJECT_COLOR_PRESETS.forEach(([id, labelKey]) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'mode-chip-btn';
+    const renderChip = () => {
+      const selected = visible.has(id);
+      chip.classList.toggle('active', selected);
+      chip.setAttribute('aria-pressed', String(selected));
+      chip.textContent = `${selected ? '✓ ' : ''}${dict[labelKey] || I18N_LOCALES['en-US'][labelKey]}`;
+    };
+    chip.onclick = () => {
+      if (visible.has(id)) visible.delete(id);
+      else visible.add(id);
+      enabledMap.colorPresets = [...visible];
+      saveProjectEnabledEffects(state.currentProject, enabledMap);
+      updateProjectColorVisibility(enabledMap);
+      renderChip();
+    };
+    renderChip();
+    paletteChips.appendChild(chip);
+  });
+  paletteCard.append(paletteTitle, paletteChips);
+  container.appendChild(paletteCard);
 
   modes.forEach(m => {
     const selectedList = enabledMap[m.id] || SCENE_ALL_CANDIDATE_EFFECTS[m.id] || [];

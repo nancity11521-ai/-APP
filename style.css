@@ -2556,3 +2556,8 @@ input:checked + .toggle-slider:before {
 .device-mockup-new[data-light-palette="four_color"] .halo-ring-emitter--capsule .halo-core-ring {
   background: conic-gradient(#00e26f 0deg 90deg, #0076e7 90deg 180deg, #ffb400 180deg 270deg, #00d2ba 270deg);
 }
+
+.color-presets-row[hidden],
+.color-presets-row > [hidden] {
+  display: none;
+}

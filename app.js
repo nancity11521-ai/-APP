@@ -38,6 +38,7 @@ const I18N_LOCALES = {
     color_peach_orange: '浅橙',
     color_fog_blue: '灰蓝',
     color_cyan_blue: '青蓝',
+    color_white: '白色',
     color_dark_green: '深绿',
     color_custom: '自定义',
     charging_duration: '充电显示时长',
@@ -110,6 +111,7 @@ const I18N_LOCALES = {
     color_peach_orange: 'Peach Orange',
     color_fog_blue: 'Haze Blue',
     color_cyan_blue: 'Cyan Blue',
+    color_white: 'White',
     color_dark_green: 'Deep Green',
     color_custom: 'Custom',
     charging_duration: 'Charging Display Duration',
@@ -182,6 +184,7 @@ const I18N_LOCALES = {
     color_peach_orange: 'Pfirsich-Orange',
     color_fog_blue: 'Dunstblau',
     color_cyan_blue: 'Zyanblau',
+    color_white: 'Weiß',
     color_dark_green: 'Dunkelgrün',
     color_custom: 'Benutzerdefiniert',
     charging_duration: 'Ladeanzeigedauer',
@@ -251,6 +254,7 @@ const I18N_LOCALES = {
     color_peach_orange: 'Naranja melocotón',
     color_fog_blue: 'Azul bruma',
     color_cyan_blue: 'Azul cian',
+    color_white: 'Blanco',
     color_dark_green: 'Verde oscuro',
     color_custom: 'Personalizado',
     charging_duration: 'Duración de pantalla de carga',
@@ -320,6 +324,7 @@ const I18N_LOCALES = {
     color_peach_orange: 'Персиковый',
     color_fog_blue: 'Туманно-синий',
     color_cyan_blue: 'Циановый',
+    color_white: 'Белый',
     color_dark_green: 'Темно-зеленый',
     color_custom: 'Пользовательский',
     charging_duration: 'Время отображения зарядки',
@@ -389,6 +394,7 @@ const I18N_LOCALES = {
     color_peach_orange: 'Orange pêche',
     color_fog_blue: 'Bleu brume',
     color_cyan_blue: 'Bleu cyan',
+    color_white: 'Blanc',
     color_dark_green: 'Vert foncé',
     color_custom: 'Personnalisé',
     charging_duration: 'Durée d’affichage de charge',
@@ -458,6 +464,7 @@ const I18N_LOCALES = {
     color_peach_orange: 'ピーチオレンジ',
     color_fog_blue: 'フォグブルー',
     color_cyan_blue: 'シアンブルー',
+    color_white: '白',
     color_dark_green: 'ディープグリーン',
     color_custom: 'カスタム',
     charging_duration: '充電表示時間',
@@ -998,18 +1005,27 @@ const PROJECT_COLOR_PRESETS = [
   ['#ffa850', 'color_peach_orange'],
   ['#4ca8ff', 'color_fog_blue'],
   ['#00f5e6', 'color_cyan_blue'],
+  ['#ffffff', 'color_white'],
   ['color_rhythm', 'effect_color_rhythm'],
   ['four_color', 'effect_four_color']
 ];
 
+function getVisibleColorPresets(enabledMap) {
+  if (!Array.isArray(enabledMap.colorPresets)) return PROJECT_COLOR_PRESETS.map(([id]) => id);
+  // Lists saved before white was introduced still show the new preset by default.
+  return enabledMap.colorPresetsVersion === 2
+    ? enabledMap.colorPresets
+    : [...enabledMap.colorPresets, '#ffffff'];
+}
+
 function updateProjectColorVisibility(enabledMap) {
-  const visible = enabledMap.colorPresets;
+  const visible = getVisibleColorPresets(enabledMap);
   document.querySelectorAll('.color-presets-row[id$="_main"]').forEach(row => {
     let hasSingle = false;
     let hasMulti = false;
     row.querySelectorAll('.color-ring-btn').forEach(button => {
       const { color, effect } = button.dataset;
-      button.hidden = Array.isArray(visible) && !visible.includes(color || effect);
+      button.hidden = !visible.includes(color || effect);
       if (!button.hidden) {
         hasSingle ||= Boolean(color);
         hasMulti ||= Boolean(effect);
@@ -1433,7 +1449,8 @@ function updateWheelThumb(boxId, colorHex) {
     '#00e600': { left: '35%', top: '90%' },
     '#ffa850': { left: '80%', top: '74%' },
     '#4ca8ff': { left: '22%', top: '30%' },
-    '#00f5e6': { left: '16%', top: '55%' }
+    '#00f5e6': { left: '16%', top: '55%' },
+    '#ffffff': { left: '50%', top: '50%' }
   };
   const pos = presetPositions[colorHex] || { left: '35%', top: '90%' };
   const thumb = document.getElementById(`wheelThumb_${boxId}`);
@@ -2622,7 +2639,7 @@ function renderProjectEffectsModal() {
   paletteTitle.textContent = state.lang === 'zh-CN' ? '页面显示的颜色' : 'Visible color presets';
   const paletteChips = document.createElement('div');
   paletteChips.className = 'mode-chips-group';
-  const visible = new Set(enabledMap.colorPresets ?? PROJECT_COLOR_PRESETS.map(([id]) => id));
+  const visible = new Set(getVisibleColorPresets(enabledMap));
   PROJECT_COLOR_PRESETS.forEach(([id, labelKey]) => {
     const chip = document.createElement('button');
     chip.type = 'button';
@@ -2637,6 +2654,7 @@ function renderProjectEffectsModal() {
       if (visible.has(id)) visible.delete(id);
       else visible.add(id);
       enabledMap.colorPresets = [...visible];
+      enabledMap.colorPresetsVersion = 2;
       saveProjectEnabledEffects(state.currentProject, enabledMap);
       updateProjectColorVisibility(enabledMap);
       renderChip();

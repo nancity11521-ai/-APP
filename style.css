@@ -1920,7 +1920,9 @@ input:checked + .toggle-slider:before {
 
 .color-ring-btn {
   width: 36px;
-  height: 36px;
+  min-width: 25px;
+  height: auto;
+  aspect-ratio: 1;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -1929,7 +1931,7 @@ input:checked + .toggle-slider:before {
   background: transparent;
   position: relative;
   transition: transform 0.15s ease, border-width 0.15s ease, padding 0.15s ease;
-  flex-shrink: 0;
+  flex-shrink: 1;
   border: 3.5px solid transparent;
   padding: 0;
   box-sizing: border-box;
@@ -1940,7 +1942,7 @@ input:checked + .toggle-slider:before {
   transform: scale(0.92);
 }
 
-/* 4个纯色中空环 */
+/* 纯色中空环 */
 .color-ring-btn.ring-green {
   border-color: #00e600;
 }
@@ -1952,6 +1954,14 @@ input:checked + .toggle-slider:before {
 }
 .color-ring-btn.ring-cyan {
   border-color: #00f5e6;
+}
+.color-ring-btn.ring-white {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px #a8afb9, inset 0 0 0 1px #a8afb9;
+}
+.color-ring-btn.ring-white.active::before {
+  background: #fff;
+  border: 1px solid #a8afb9;
 }
 
 /* 垂直蓝色分割线 */

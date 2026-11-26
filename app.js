@@ -698,7 +698,7 @@ function isCapsuleLightProject(projectId) {
 
 // Relative to the 6020 line-art image and its purple light track.
 const CAPSULE_LIGHT_CONFIG = {
-  left: '31.6%', top: '87.0%', width: '11.9%', scale: 1, ringWidth: 18,
+  left: '31.6%', top: '87.1%', width: '12.2%', scale: 1, ringWidth: 25,
   shape: 'capsule'
 };
 
@@ -1989,7 +1989,9 @@ function getProjectLightConfig(projectId) {
   const normId = normalizeProjectId(projectId);
   if (isCapsuleLightProject(projectId)) {
     const saved = state.projectLightConfigs?.[normId];
-    return saved?.shape === 'capsule' ? { ...CAPSULE_LIGHT_CONFIG, ...saved } : { ...CAPSULE_LIGHT_CONFIG };
+    return saved?.shape === 'capsule'
+      ? { ...CAPSULE_LIGHT_CONFIG, ...saved }
+      : { ...CAPSULE_LIGHT_CONFIG, scale: saved?.scale ?? CAPSULE_LIGHT_CONFIG.scale };
   }
   if (state.projectLightConfigs) {
     if (state.projectLightConfigs[normId]) {

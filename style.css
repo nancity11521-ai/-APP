@@ -2525,10 +2525,12 @@ input:checked + .toggle-slider:before {
 
 /* 6020: keep the capsule track fixed while its light effects animate. */
 .halo-ring-emitter--capsule {
-  aspect-ratio: 2.04;
+  box-sizing: border-box;
+  aspect-ratio: 1.98;
   border-radius: 999px;
-  padding: calc(var(--emitter-ring-width, 18%) * .14);
-  mask: linear-gradient(#fff 0 0) content-box exclude, linear-gradient(#fff 0 0);
+  padding: calc(var(--emitter-ring-width, 25%) * .0293);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) border-box;
+  mask-composite: exclude;
 }
 .halo-ring-emitter--capsule .halo-core-ring {
   width: 117%;

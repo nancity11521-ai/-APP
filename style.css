@@ -2523,6 +2523,14 @@ input:checked + .toggle-slider:before {
 #project-login button[type="submit"] { background: #174a82; color: #fff; }
 .project-session button:disabled, #project-login button:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* Use the full image height for 6020 coordinates, even in the 16:9 card. */
+.device-mockup-new:has(.halo-ring-emitter--capsule) {
+  max-height: none;
+}
+.device-mockup-new:has(.halo-ring-emitter--capsule) .device-clean-img {
+  max-height: none;
+}
+
 /* 6020: keep the capsule track fixed while its light effects animate. */
 .halo-ring-emitter--capsule {
   box-sizing: border-box;

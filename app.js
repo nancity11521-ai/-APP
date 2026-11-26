@@ -36,8 +36,8 @@ const I18N_LOCALES = {
     effect_rhythm: '律动',
     color_grass_green: '草绿',
     color_peach_orange: '浅橙',
-    color_fog_blue: '灰蓝',
-    color_cyan_blue: '青蓝',
+    color_wine_red: '深酒红',
+    color_light_blue_gray: '浅蓝灰',
     color_white: '白色',
     color_dark_green: '深绿',
     color_custom: '自定义',
@@ -109,8 +109,8 @@ const I18N_LOCALES = {
     effect_rhythm: 'Rhythm',
     color_grass_green: 'Grass Green',
     color_peach_orange: 'Peach Orange',
-    color_fog_blue: 'Haze Blue',
-    color_cyan_blue: 'Cyan Blue',
+    color_wine_red: 'Deep Wine Red',
+    color_light_blue_gray: 'Light Blue Gray',
     color_white: 'White',
     color_dark_green: 'Deep Green',
     color_custom: 'Custom',
@@ -182,8 +182,8 @@ const I18N_LOCALES = {
     effect_rhythm: 'Rhythmus',
     color_grass_green: 'Grasgrün',
     color_peach_orange: 'Pfirsich-Orange',
-    color_fog_blue: 'Dunstblau',
-    color_cyan_blue: 'Zyanblau',
+    color_wine_red: 'Dunkles Weinrot',
+    color_light_blue_gray: 'Helles Blaugrau',
     color_white: 'Weiß',
     color_dark_green: 'Dunkelgrün',
     color_custom: 'Benutzerdefiniert',
@@ -252,8 +252,8 @@ const I18N_LOCALES = {
     effect_rhythm: 'Ritmo',
     color_grass_green: 'Verde hierba',
     color_peach_orange: 'Naranja melocotón',
-    color_fog_blue: 'Azul bruma',
-    color_cyan_blue: 'Azul cian',
+    color_wine_red: 'Rojo vino oscuro',
+    color_light_blue_gray: 'Gris azulado claro',
     color_white: 'Blanco',
     color_dark_green: 'Verde oscuro',
     color_custom: 'Personalizado',
@@ -322,8 +322,8 @@ const I18N_LOCALES = {
     effect_rhythm: 'Ритм',
     color_grass_green: 'Травяной зеленый',
     color_peach_orange: 'Персиковый',
-    color_fog_blue: 'Туманно-синий',
-    color_cyan_blue: 'Циановый',
+    color_wine_red: 'Тёмный винный',
+    color_light_blue_gray: 'Светлый серо-голубой',
     color_white: 'Белый',
     color_dark_green: 'Темно-зеленый',
     color_custom: 'Пользовательский',
@@ -392,8 +392,8 @@ const I18N_LOCALES = {
     effect_rhythm: 'Rythme',
     color_grass_green: 'Vert herbe',
     color_peach_orange: 'Orange pêche',
-    color_fog_blue: 'Bleu brume',
-    color_cyan_blue: 'Bleu cyan',
+    color_wine_red: 'Rouge lie-de-vin',
+    color_light_blue_gray: 'Gris bleu clair',
     color_white: 'Blanc',
     color_dark_green: 'Vert foncé',
     color_custom: 'Personnalisé',
@@ -462,8 +462,8 @@ const I18N_LOCALES = {
     effect_rhythm: 'リズム',
     color_grass_green: 'グラスグリーン',
     color_peach_orange: 'ピーチオレンジ',
-    color_fog_blue: 'フォグブルー',
-    color_cyan_blue: 'シアンブルー',
+    color_wine_red: '深いワインレッド',
+    color_light_blue_gray: 'ライトブルーグレー',
     color_white: '白',
     color_dark_green: 'ディープグリーン',
     color_custom: 'カスタム',
@@ -1003,19 +1003,23 @@ function updateMusicColorModules(effectName) {
 const PROJECT_COLOR_PRESETS = [
   ['#00e600', 'color_grass_green'],
   ['#ffa850', 'color_peach_orange'],
-  ['#4ca8ff', 'color_fog_blue'],
-  ['#00f5e6', 'color_cyan_blue'],
+  ['#603b44', 'color_wine_red'],
+  ['#b6c3d5', 'color_light_blue_gray'],
   ['#ffffff', 'color_white'],
   ['color_rhythm', 'effect_color_rhythm'],
   ['four_color', 'effect_four_color']
 ];
 
+const REPLACED_COLOR_PRESETS = {
+  '#4ca8ff': '#603b44',
+  '#00f5e6': '#b6c3d5'
+};
+
 function getVisibleColorPresets(enabledMap) {
   if (!Array.isArray(enabledMap.colorPresets)) return PROJECT_COLOR_PRESETS.map(([id]) => id);
   // Lists saved before white was introduced still show the new preset by default.
-  return enabledMap.colorPresetsVersion === 2
-    ? enabledMap.colorPresets
-    : [...enabledMap.colorPresets, '#ffffff'];
+  const visible = enabledMap.colorPresets.map(id => REPLACED_COLOR_PRESETS[id] || id);
+  return enabledMap.colorPresetsVersion === 2 ? visible : [...visible, '#ffffff'];
 }
 
 function updateProjectColorVisibility(enabledMap) {
@@ -1448,8 +1452,8 @@ function updateWheelThumb(boxId, colorHex) {
   const presetPositions = {
     '#00e600': { left: '35%', top: '90%' },
     '#ffa850': { left: '80%', top: '74%' },
-    '#4ca8ff': { left: '22%', top: '30%' },
-    '#00f5e6': { left: '16%', top: '55%' },
+    '#603b44': { left: '66%', top: '44%' },
+    '#b6c3d5': { left: '43%', top: '45%' },
     '#ffffff': { left: '50%', top: '50%' }
   };
   const pos = presetPositions[colorHex] || { left: '35%', top: '90%' };
@@ -2496,6 +2500,19 @@ function loadCurrentProjectScenes() {
   const curData = state.projectScenes[p] || state.projectScenes[norm];
   if (curData) {
     state.scenes = JSON.parse(JSON.stringify(curData));
+    const renamedKeys = {
+      color_fog_blue: 'color_wine_red',
+      color_cyan_blue: 'color_light_blue_gray'
+    };
+    for (const scene of Object.values(state.scenes)) {
+      for (const [colorField, keyField] of [['color', 'colorKey'], ['inCallColor', 'inCallColorKey']]) {
+        const nextKey = renamedKeys[scene[keyField]];
+        if (nextKey) {
+          scene[keyField] = nextKey;
+          scene[colorField] = REPLACED_COLOR_PRESETS[scene[colorField]] || scene[colorField];
+        }
+      }
+    }
   }
 }
 

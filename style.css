@@ -1949,11 +1949,11 @@ input:checked + .toggle-slider:before {
 .color-ring-btn.ring-orange {
   border-color: #ffa850;
 }
-.color-ring-btn.ring-blue {
-  border-color: #4ca8ff;
+.color-ring-btn.ring-wine-red {
+  border-color: #603b44;
 }
-.color-ring-btn.ring-cyan {
-  border-color: #00f5e6;
+.color-ring-btn.ring-light-blue-gray {
+  border-color: #b6c3d5;
 }
 .color-ring-btn.ring-white {
   border-color: #fff;
@@ -2032,11 +2032,11 @@ input:checked + .toggle-slider:before {
 .color-ring-btn.ring-orange.active::before {
   background-color: #ffa850;
 }
-.color-ring-btn.ring-blue.active::before {
-  background-color: #4ca8ff;
+.color-ring-btn.ring-wine-red.active::before {
+  background-color: #603b44;
 }
-.color-ring-btn.ring-cyan.active::before {
-  background-color: #00f5e6;
+.color-ring-btn.ring-light-blue-gray.active::before {
+  background-color: #b6c3d5;
 }
 .color-ring-btn.ring-rainbow.active::before {
   background: conic-gradient(from 270deg, #ffd700 0%, #00e676 15%, #00b0ff 30%, #7c4dff 45%, #e040fb 60%, #ff1744 75%, #ff9100 88%, #ffd700 100%);
@@ -2051,10 +2051,10 @@ input:checked + .toggle-slider:before {
 .color-ring-btn.ring-orange.active {
   border-width: 3.5px;
 }
-.color-ring-btn.ring-blue.active {
+.color-ring-btn.ring-wine-red.active {
   border-width: 3.5px;
 }
-.color-ring-btn.ring-cyan.active {
+.color-ring-btn.ring-light-blue-gray.active {
   border-width: 3.5px;
 }
 .color-ring-btn.ring-rainbow.active {

@@ -40,7 +40,7 @@ const I18N_LOCALES = {
     color_cyan_blue: '青蓝',
     color_dark_green: '深绿',
     color_custom: '自定义',
-    charging_duration: '充电时间显示时长',
+    charging_duration: '充电显示时长',
     charging_duration_15s: '15秒',
     charging_duration_30s: '30秒',
     charging_duration_1m: '1分钟',
@@ -1912,7 +1912,7 @@ function updateActiveTimeSummary() {
 }
 
 /**
- * 充电时间显示时长抽屉控制与选定
+ * 充电显示时长抽屉控制与选定
  */
 function openChargingDurationSheet() {
   toggleDurationSheet(true);

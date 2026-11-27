@@ -37,7 +37,7 @@ const projectSync = (() => {
   async function request(path, method = 'GET', body) {
     const headers = {};
     if (body) headers['Content-Type'] = 'application/json';
-    if (token) headers.Authorization = 'Bearer ' + token;
+    if (token && path !== '/published') headers.Authorization = 'Bearer ' + token;
     const response = await fetch(endpoint + path, {
       method, headers, body: body && JSON.stringify(body)
     });
@@ -95,8 +95,19 @@ const projectSync = (() => {
     updateSaveButton();
   }
 
+  async function loadPublishedContent() {
+    status('正在加载线上预览…');
+    try {
+      const published = await request('/published');
+      data = published.data;
+      status('已加载线上预览（登录后可编辑配置）');
+    } catch {
+      status('线上预览暂时不可用，当前显示默认内容');
+    }
+  }
+
   const ready = (async () => {
-    if (!token) return;
+    if (!token) return loadPublishedContent();
     action.disabled = true;
     action.textContent = '正在登录…';
     status('正在加载线上内容…');
@@ -122,7 +133,7 @@ const projectSync = (() => {
         sessionStorage.removeItem(sessionKey);
       }
       action.textContent = '登录编辑';
-      status(error.status === 401 ? '登录已过期' : '同步暂时不可用');
+      await loadPublishedContent();
     } finally {
       action.disabled = false;
       updateSaveButton();

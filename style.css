@@ -2573,3 +2573,7 @@ input:checked + .toggle-slider:before {
 .color-presets-row > [hidden] {
   display: none;
 }
+
+#btnDeleteCurrentProject[hidden] {
+  display: none;
+}

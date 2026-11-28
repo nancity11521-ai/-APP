@@ -2881,11 +2881,13 @@ function renderProjectOptions() {
   optNew.textContent = isZh ? '➕ 新增项目型号...' : '➕ New Project...';
   select.appendChild(optNew);
 
-  const optDelete = document.createElement('option');
-  optDelete.value = '__delete_project__';
-  optDelete.textContent = isZh ? '🗑️ 删除当前项目...' : '🗑️ Delete Current Project...';
-  optDelete.style.color = '#ef4444';
-  select.appendChild(optDelete);
+  if (projectSync.canEdit()) {
+    const optDelete = document.createElement('option');
+    optDelete.value = '__delete_project__';
+    optDelete.textContent = isZh ? '🗑️ 删除当前项目...' : '🗑️ Delete Current Project...';
+    optDelete.style.color = '#ef4444';
+    select.appendChild(optDelete);
+  }
 
   select.value = currentVal;
 }
@@ -2922,6 +2924,7 @@ function handleProjectDropdownChange(val) {
  * 删除当前选中的项目型号
  */
 function deleteCurrentProject() {
+  if (!projectSync.canEdit()) return;
   const p = state.currentProject;
   const isZh = state.lang === 'zh-CN';
 

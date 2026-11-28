@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>通知氛围灯效果设置 - 多语言交互原型 (DYNAMIC SOUND)</title>
-  <link rel="stylesheet" href="./style.css?v=20261126_white_ring_size">
+  <link rel="stylesheet" href="./style.css?v=20261128_guest_delete">
 </head>
 <body>
   <a class="desktop-widget-entry" href="./desktop-widget/">幻彩脉动桌面小部件</a>
@@ -34,7 +34,6 @@
         <option value="GQ3136">GQ3136</option>
         <option value="__upload__">📁 更换示意图...</option>
         <option value="__new_project__">➕ 新增项目型号...</option>
-        <option value="__delete_project__" style="color: #ef4444;">🗑️ 删除当前项目...</option>
       </select>
       <button type="button" class="btn-adjust-light btn-project-effects" id="btnToggleProjectEffects" onclick="toggleProjectEffectsModal()" title="模式灯效选择与确认">
         <span>⚡</span>
@@ -44,7 +43,7 @@
         <span>🎯</span>
         <span class="btn-adjust-text" data-i18n="adjust_light_btn">调整灯位</span>
       </button>
-      <button type="button" class="btn-adjust-light btn-delete-project" id="btnDeleteCurrentProject" onclick="deleteCurrentProject()" title="删除当前项目" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.28);">
+      <button type="button" class="btn-adjust-light btn-delete-project" id="btnDeleteCurrentProject" hidden onclick="deleteCurrentProject()" title="删除当前项目" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.28);">
         <span>🗑️</span>
         <span class="btn-adjust-text" data-i18n="delete_project_btn">删除项目</span>
       </button>
@@ -1190,7 +1189,7 @@
       <button type="submit">登录</button>
     </form>
   </dialog>
-  <script src="./project-sync.js?v=7"></script>
-  <script src="./app.js?v=20261126_light_blue_gray"></script>
+  <script src="./project-sync.js?v=8"></script>
+  <script src="./app.js?v=20261128_guest_delete"></script>
 </body>
 </html>

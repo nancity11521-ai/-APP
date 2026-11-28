@@ -24,6 +24,8 @@ const projectSync = (() => {
 
   function updateSaveButton() {
     confirmSave.hidden = !editable;
+    document.getElementById('btnDeleteCurrentProject').hidden = !editable;
+    if (!editable) document.querySelector('#desktopProjectSelect option[value="__delete_project__"]')?.remove();
     if (!editable) return;
     if (saving) {
       confirmSave.disabled = true;
@@ -241,6 +243,7 @@ const projectSync = (() => {
 
   return {
     ready,
+    canEdit: () => editable,
     saveNow: save,
     start() {
       initialized = true;
